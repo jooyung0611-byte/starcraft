@@ -8,23 +8,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# =========================================================
-# 시작 화면
-# =========================================================
-
 if "started" not in st.session_state:
     st.session_state.started = False
 
+
+# =========================================================
+# 종족 선택
+# =========================================================
 
 if not st.session_state.started:
 
     st.markdown("""
     <style>
-
-    body {
-        background:#05080c;
-    }
-
     .title {
         text-align:center;
         font-size:70px;
@@ -40,7 +35,6 @@ if not st.session_state.started:
         letter-spacing:5px;
         margin-bottom:45px;
     }
-
     </style>
 
     <div class="title">
@@ -52,7 +46,6 @@ if not st.session_state.started:
     </div>
     """, unsafe_allow_html=True)
 
-
     c1, c2, c3 = st.columns(3)
 
     with c2:
@@ -61,20 +54,16 @@ if not st.session_state.started:
             "🔵 TERRAN",
             use_container_width=True
         ):
-
             st.session_state.started = True
             st.rerun()
 
-
-    st.info(
-        "현재 플레이 가능한 종족은 테란입니다."
-    )
+    st.info("현재 플레이 가능한 종족은 테란입니다.")
 
     st.stop()
 
 
 # =========================================================
-# GAME
+# 게임 HTML
 # =========================================================
 
 html = r"""
@@ -88,12 +77,7 @@ html = r"""
 
 <style>
 
-/* ========================================================
-   기본
-======================================================== */
-
-html,
-body {
+html, body {
 
     margin:0;
     padding:0;
@@ -112,9 +96,9 @@ body {
 }
 
 
-/* ========================================================
-   게임
-======================================================== */
+/* =====================================================
+   GAME
+===================================================== */
 
 #game {
 
@@ -128,9 +112,9 @@ body {
 }
 
 
-/* ========================================================
+/* =====================================================
    상단 자원 UI
-======================================================== */
+===================================================== */
 
 #topUI {
 
@@ -139,7 +123,7 @@ body {
     top:15px;
     left:15px;
 
-    z-index:50;
+    z-index:100;
 
     background:
         rgba(5,10,15,0.94);
@@ -149,8 +133,7 @@ body {
 
     border-radius:8px;
 
-    padding:
-        12px 18px;
+    padding:12px 18px;
 
     color:white;
 
@@ -159,7 +142,6 @@ body {
     box-shadow:
         0 5px 25px
         rgba(0,0,0,0.55);
-
 }
 
 
@@ -170,20 +152,14 @@ body {
     margin-right:25px;
 
     font-size:17px;
-
 }
 
 
 .resource b {
 
     color:#7fdcff;
-
 }
 
-
-/* ========================================================
-   메시지
-======================================================== */
 
 #message {
 
@@ -192,136 +168,215 @@ body {
     color:#8fcfff;
 
     font-size:13px;
-
 }
 
 
-/* ========================================================
-   명령창
-======================================================== */
+/* =====================================================
+   오른쪽 상태창
+===================================================== */
 
-#commandUI {
+#unitPanel {
 
     position:absolute;
 
     right:20px;
-    bottom:155px;
+    top:90px;
 
-    z-index:50;
+    width:285px;
 
-    width:290px;
+    min-height:320px;
 
-    background:
-        rgba(5,10,15,0.96);
-
-    border:
-        1px solid #536d7c;
-
-    border-radius:8px;
-
-    padding:15px;
-
-    color:white;
+    z-index:110;
 
     display:none;
 
-    box-shadow:
-        0 5px 25px
-        rgba(0,0,0,0.7);
+    padding:18px;
 
+    box-sizing:border-box;
+
+    color:white;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(19,28,34,0.98),
+            rgba(5,10,14,0.98)
+        );
+
+    border:
+        2px solid #566b77;
+
+    border-radius:8px;
+
+    box-shadow:
+        0 8px 30px
+        rgba(0,0,0,0.7);
 }
 
 
-#selectedTitle {
+#unitIcon {
 
-    font-size:17px;
+    width:65px;
+    height:65px;
+
+    margin:auto;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:38px;
+
+    background:#18242b;
+
+    border:
+        1px solid #607581;
+
+    border-radius:6px;
+}
+
+
+#unitName {
+
+    text-align:center;
+
+    margin-top:10px;
+
+    font-size:21px;
 
     font-weight:bold;
-
-    margin-bottom:10px;
-
 }
 
 
-#commandUI button {
+.panelLine {
+
+    height:1px;
+
+    background:#455761;
+
+    margin:14px 0;
+}
+
+
+#healthText {
+
+    font-size:14px;
+
+    margin-bottom:6px;
+}
+
+
+#healthBar {
 
     width:100%;
 
-    margin-top:8px;
+    height:12px;
 
-    padding:10px;
+    background:#252b2e;
 
-    background:#162b38;
+    border-radius:5px;
 
-    border:
-        1px solid #41667b;
+    overflow:hidden;
+}
+
+
+#healthFill {
+
+    width:100%;
+
+    height:100%;
+
+    background:#39c95a;
+}
+
+
+.panelTitle {
+
+    margin-top:18px;
+
+    margin-bottom:8px;
+
+    color:#bdd4df;
+
+    font-weight:bold;
+}
+
+
+#scvStatus {
+
+    padding:9px;
+
+    background:#111b20;
+
+    border-radius:5px;
+
+    color:#8fd2ff;
+
+    font-size:13px;
+}
+
+
+#unitPanel button {
+
+    width:100%;
+
+    padding:12px;
+
+    margin-top:7px;
 
     color:white;
+
+    background:#182e3b;
+
+    border:
+        1px solid #4b7387;
 
     border-radius:5px;
 
     cursor:pointer;
 
+    font-size:14px;
 }
 
 
-#commandUI button:hover {
+#unitPanel button:hover {
 
-    background:#244b60;
-
+    background:#285269;
 }
 
 
-/* ========================================================
-   진행바
-======================================================== */
+#unitPanel small {
 
-#progressArea {
-
-    margin-top:12px;
-
-    display:none;
-
+    color:#a8bac3;
 }
 
 
-#progress {
+#productionQueue {
 
-    width:100%;
+    margin-top:10px;
 
-    height:8px;
+    padding:8px;
 
-    margin-top:6px;
+    text-align:center;
 
-    background:#20252a;
+    background:#111a1f;
 
-    border-radius:5px;
+    border-radius:4px;
 
-    overflow:hidden;
-
+    color:#a9c0ca;
 }
 
 
-#progressBar {
-
-    width:0%;
-
-    height:100%;
-
-    background:#28aaff;
-
-}
-
-
-/* ========================================================
-   드래그 박스
-======================================================== */
+/* =====================================================
+   드래그 선택 박스
+===================================================== */
 
 #selectionBox {
 
     position:absolute;
 
-    z-index:45;
+    z-index:90;
 
     display:none;
 
@@ -335,26 +390,24 @@ body {
 }
 
 
-/* ========================================================
+/* =====================================================
    미니맵
-======================================================== */
+===================================================== */
 
 #minimapContainer {
 
     position:absolute;
 
     left:50%;
-
     bottom:10px;
 
     transform:
         translateX(-50%);
 
     width:380px;
-
     height:145px;
 
-    z-index:60;
+    z-index:120;
 
     background:
         rgba(4,8,11,0.97);
@@ -369,33 +422,25 @@ body {
     box-shadow:
         0 4px 20px
         rgba(0,0,0,0.8);
-
 }
 
 
 #minimap {
 
     width:100%;
-
     height:100%;
 
     display:block;
 
     cursor:pointer;
-
 }
 
-
-/* ========================================================
-   미니맵 설명
-======================================================== */
 
 #minimapLabel {
 
     position:absolute;
 
     left:8px;
-
     top:5px;
 
     color:#bcd1dd;
@@ -406,29 +451,26 @@ body {
 
     text-shadow:
         0 1px 3px black;
-
 }
 
 
-/* ========================================================
+/* =====================================================
    도움말
-======================================================== */
+===================================================== */
 
 #help {
 
     position:absolute;
 
     left:15px;
-
     bottom:15px;
 
-    z-index:50;
+    z-index:100;
 
     background:
         rgba(0,0,0,0.72);
 
-    padding:
-        9px 13px;
+    padding:9px 13px;
 
     border-radius:5px;
 
@@ -437,7 +479,6 @@ body {
     font-size:12px;
 
     line-height:1.6;
-
 }
 
 </style>
@@ -447,10 +488,8 @@ body {
 
 {
     "imports": {
-
         "three":
         "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
-
     }
 }
 
@@ -466,7 +505,7 @@ body {
 
 
 <!-- =====================================================
-     TOP UI
+     자원
 ===================================================== -->
 
 <div id="topUI">
@@ -499,47 +538,85 @@ body {
 
 
 <!-- =====================================================
-     COMMAND UI
+     오른쪽 상태창
 ===================================================== -->
 
-<div id="commandUI">
+<div id="unitPanel">
 
-    <div id="selectedTitle">
-        선택
+    <div id="unitIcon">
+        👨‍🚀
+    </div>
+
+    <div id="unitName">
+        SCV
+    </div>
+
+    <div class="panelLine"></div>
+
+    <div id="healthText">
+        체력: 50 / 50
+    </div>
+
+    <div id="healthBar">
+        <div id="healthFill"></div>
     </div>
 
 
-    <button id="trainSCV">
+    <!-- SCV 상태 -->
 
-        👨‍🚀 SCV 생산
+    <div id="scvStatusPanel">
 
-        <br>
+        <div class="panelTitle">
+            현재 상태
+        </div>
 
-        💎 50 미네랄
-        / ⏱ 10초
-
-    </button>
-
-
-    <button id="buildGas">
-
-        🏗️ 가스 채취 시설 건설
-
-        <br>
-
-        ⏱ 건설시간 15초
-
-    </button>
+        <div id="scvStatus">
+            대기 중
+        </div>
 
 
-    <div id="progressArea">
+        <div class="panelTitle">
+            🏗️ 건설 가능
+        </div>
 
-        진행 중
+        <button id="gasBuildButton">
 
-        <div id="progress">
+            🟢 가스 채취 시설
 
-            <div id="progressBar"></div>
+            <br>
 
+            <small>
+                건설 시간: 15초
+            </small>
+
+        </button>
+
+    </div>
+
+
+    <!-- 사령부 -->
+
+    <div id="commandPanel">
+
+        <div class="panelTitle">
+            👨‍🚀 유닛 생산
+        </div>
+
+        <button id="scvProduceButton">
+
+            👨‍🚀 SCV
+
+            <br>
+
+            <small>
+                💎 50 미네랄
+                | ⏱️ 10초
+            </small>
+
+        </button>
+
+        <div id="productionQueue">
+            생산 대기: 0 / 5
         </div>
 
     </div>
@@ -548,14 +625,14 @@ body {
 
 
 <!-- =====================================================
-     SELECTION BOX
+     선택 박스
 ===================================================== -->
 
 <div id="selectionBox"></div>
 
 
 <!-- =====================================================
-     MINIMAP
+     미니맵
 ===================================================== -->
 
 <div id="minimapContainer">
@@ -570,26 +647,26 @@ body {
 
 
 <!-- =====================================================
-     HELP
+     도움말
 ===================================================== -->
 
 <div id="help">
 
     <b>조작법</b><br>
 
-    좌클릭 : 유닛 / 건물 선택<br>
+    좌클릭 : 유닛 선택<br>
 
-    드래그 : 여러 SCV 선택<br>
+    좌클릭 드래그 : 여러 유닛 선택<br>
 
     우클릭 : 이동 / 자원 채취<br>
 
-    SCV → 가스 : 시설 건설<br>
+    SCV 상태창 → 가스 시설 : 건설<br>
 
-    사령부 클릭 : SCV 생산<br>
+    사령부 클릭 → SCV : 생산<br>
 
-    화면 가장자리 : 카메라 이동<br>
+    화면 끝 : 카메라 이동<br>
 
-    미니맵 클릭 : 해당 지역으로 이동
+    미니맵 클릭 : 화면 이동
 
 </div>
 
@@ -600,12 +677,13 @@ import * as THREE from "three";
 
 
 // ========================================================
-// GAME SETTINGS
+// 설정
 // ========================================================
 
 const MAP_SIZE = 320;
 
-const HALF_MAP = MAP_SIZE / 2;
+const HALF_MAP =
+    MAP_SIZE / 2;
 
 const EDGE_SIZE = 45;
 
@@ -613,7 +691,7 @@ const CAMERA_SPEED = 1.5;
 
 
 // ========================================================
-// GAME DATA
+// 게임 변수
 // ========================================================
 
 let mineralsCount = 500;
@@ -638,9 +716,11 @@ let mineralObjects = [];
 
 let selectedUnits = [];
 
+let selectedBuilding = null;
+
 
 // ========================================================
-// SCENE
+// THREE SCENE
 // ========================================================
 
 const scene =
@@ -675,12 +755,19 @@ const camera =
     );
 
 
-// 완전 탑다운
 camera.position.set(
     0,
     180,
-    0
+    35
 );
+
+
+let cameraTarget =
+    new THREE.Vector3(
+        0,
+        0,
+        35
+    );
 
 
 // ========================================================
@@ -689,9 +776,7 @@ camera.position.set(
 
 const renderer =
     new THREE.WebGLRenderer({
-
         antialias:true
-
     });
 
 
@@ -719,21 +804,7 @@ renderer.shadowMap.type =
 
 document
     .getElementById("game")
-    .appendChild(
-        renderer.domElement
-    );
-
-
-// ========================================================
-// TOP DOWN CAMERA TARGET
-// ========================================================
-
-let cameraTarget =
-    new THREE.Vector3(
-        0,
-        0,
-        30
-    );
+    .appendChild(renderer.domElement);
 
 
 // ========================================================
@@ -774,9 +845,7 @@ sunlight.shadow.mapSize.height =
     2048;
 
 
-scene.add(
-    sunlight
-);
+scene.add(sunlight);
 
 
 // ========================================================
@@ -794,11 +863,8 @@ const ground =
         ),
 
         new THREE.MeshStandardMaterial({
-
             color:0x26382e,
-
             roughness:0.95
-
         })
 
     );
@@ -858,7 +924,6 @@ const borderMaterial =
 const borderHeight = 3;
 
 
-// 북쪽
 const northBorder =
     new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -869,26 +934,28 @@ const northBorder =
         borderMaterial
     );
 
+
 northBorder.position.set(
     0,
     1.5,
     -HALF_MAP
 );
 
+
 scene.add(northBorder);
 
 
-// 남쪽
 const southBorder =
     northBorder.clone();
+
 
 southBorder.position.z =
     HALF_MAP;
 
+
 scene.add(southBorder);
 
 
-// 서쪽
 const westBorder =
     new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -899,21 +966,24 @@ const westBorder =
         borderMaterial
     );
 
+
 westBorder.position.set(
     -HALF_MAP,
     1.5,
     0
 );
 
+
 scene.add(westBorder);
 
 
-// 동쪽
 const eastBorder =
     westBorder.clone();
 
+
 eastBorder.position.x =
     HALF_MAP;
+
 
 scene.add(eastBorder);
 
@@ -922,10 +992,10 @@ scene.add(eastBorder);
 // ROCKS
 // ========================================================
 
-for(let i=0;i<170;i++){
+for(let i=0; i<170; i++){
 
     const size =
-        Math.random()*3+1;
+        Math.random()*3 + 1;
 
 
     const rock =
@@ -980,7 +1050,6 @@ function createCommandCenter(){
         new THREE.Group();
 
 
-    // 바닥
     const base =
         new THREE.Mesh(
 
@@ -1014,7 +1083,6 @@ function createCommandCenter(){
     group.add(base);
 
 
-    // 중앙 건물
     const body =
         new THREE.Mesh(
 
@@ -1048,7 +1116,6 @@ function createCommandCenter(){
     group.add(body);
 
 
-    // 앞쪽 문
     const door =
         new THREE.Mesh(
 
@@ -1079,7 +1146,6 @@ function createCommandCenter(){
     group.add(door);
 
 
-    // 엔진
     for(
         const x of [-9,9]
     ){
@@ -1141,7 +1207,6 @@ function createCommandCenter(){
     }
 
 
-    // 지붕
     const roof =
         new THREE.Mesh(
 
@@ -1174,7 +1239,6 @@ function createCommandCenter(){
     group.add(roof);
 
 
-    // 중앙 에너지
     const energy =
         new THREE.Mesh(
 
@@ -1205,7 +1269,6 @@ function createCommandCenter(){
     group.add(energy);
 
 
-    // 안테나
     const antenna =
         new THREE.Mesh(
 
@@ -1250,7 +1313,6 @@ function createCommandCenter(){
     );
 
 
-    // 위치
     group.position.set(
         0,
         0,
@@ -1261,12 +1323,19 @@ function createCommandCenter(){
     group.userData.type =
         "command";
 
+    group.userData.maxHealth =
+        1500;
+
+    group.userData.health =
+        1500;
+
 
     scene.add(group);
 
 
     commandCenter =
         group;
+
 }
 
 
@@ -1274,7 +1343,7 @@ createCommandCenter();
 
 
 // ========================================================
-// MINERAL
+// MINERALS
 // ========================================================
 
 const mineralPositions = [
@@ -1310,10 +1379,7 @@ const mineralPositions = [
 ];
 
 
-function createMineral(
-    x,
-    z
-){
+function createMineral(x,z){
 
     const group =
         new THREE.Group();
@@ -1597,6 +1663,12 @@ function createGasFacility(){
     group.userData.type =
         "gasFacility";
 
+    group.userData.maxHealth =
+        500;
+
+    group.userData.health =
+        500;
+
 
     scene.add(group);
 
@@ -1610,7 +1682,7 @@ function createGasFacility(){
 
 
     message(
-        "🟢 가스 시설 완성!"
+        "🏗️ 가스 채취 시설 건설 완료!"
     );
 
 }
@@ -1626,7 +1698,6 @@ function createSCV(index){
         new THREE.Group();
 
 
-    // 몸체
     const body =
         new THREE.Mesh(
 
@@ -1660,7 +1731,6 @@ function createSCV(index){
     scv.add(body);
 
 
-    // 앞부분
     const front =
         new THREE.Mesh(
 
@@ -1691,7 +1761,6 @@ function createSCV(index){
     scv.add(front);
 
 
-    // 바퀴
     for(
         const side of [-1,1]
     ){
@@ -1731,7 +1800,6 @@ function createSCV(index){
     }
 
 
-    // 램프
     const lamp =
         new THREE.Mesh(
 
@@ -1764,7 +1832,6 @@ function createSCV(index){
     scv.add(lamp);
 
 
-    // 생성 위치
     scv.position.set(
 
         -8 + index*4,
@@ -1782,6 +1849,14 @@ function createSCV(index){
 
     scv.userData.id =
         index;
+
+
+    scv.userData.maxHealth =
+        50;
+
+
+    scv.userData.health =
+        50;
 
 
     scv.userData.state =
@@ -1832,7 +1907,7 @@ for(let i=0;i<5;i++){
 
 
 // ========================================================
-// UI FUNCTIONS
+// UI
 // ========================================================
 
 function updateResources(){
@@ -1872,6 +1947,20 @@ function updateQueue(){
         .innerText =
         scvQueue;
 
+    const pq =
+        document.getElementById(
+            "productionQueue"
+        );
+
+    if(pq){
+
+        pq.innerText =
+            "생산 대기: " +
+            scvQueue +
+            " / 5";
+
+    }
+
 }
 
 
@@ -1886,7 +1975,261 @@ function message(text){
 
 
 // ========================================================
-// SELECTION
+// 오른쪽 상태창
+// ========================================================
+
+const unitPanel =
+    document.getElementById(
+        "unitPanel"
+    );
+
+
+const unitIcon =
+    document.getElementById(
+        "unitIcon"
+    );
+
+
+const unitName =
+    document.getElementById(
+        "unitName"
+    );
+
+
+const healthText =
+    document.getElementById(
+        "healthText"
+    );
+
+
+const healthFill =
+    document.getElementById(
+        "healthFill"
+    );
+
+
+const scvStatus =
+    document.getElementById(
+        "scvStatus"
+    );
+
+
+function hideUnitPanel(){
+
+    unitPanel.style.display =
+        "none";
+
+}
+
+
+function showSCVStatus(scv){
+
+    selectedBuilding =
+        null;
+
+
+    unitPanel.style.display =
+        "block";
+
+
+    unitIcon.innerText =
+        "👨‍🚀";
+
+
+    unitName.innerText =
+        "SCV";
+
+
+    healthText.innerText =
+        "체력: " +
+        scv.userData.health +
+        " / " +
+        scv.userData.maxHealth;
+
+
+    healthFill.style.width =
+        (
+            scv.userData.health /
+            scv.userData.maxHealth *
+            100
+        ) + "%";
+
+
+    document
+        .getElementById(
+            "scvStatusPanel"
+        )
+        .style.display =
+        "block";
+
+
+    document
+        .getElementById(
+            "commandPanel"
+        )
+        .style.display =
+        "none";
+
+
+    updateSCVStatus(scv);
+
+}
+
+
+function updateSCVStatus(scv){
+
+    if(!scv)
+        return;
+
+
+    let text =
+        "대기 중";
+
+
+    switch(
+        scv.userData.state
+    ){
+
+        case "idle":
+
+            text =
+                "대기 중";
+
+            break;
+
+
+        case "moving":
+
+            text =
+                "이동 중";
+
+            break;
+
+
+        case "movingToMineral":
+
+            text =
+                "⛏️ 미네랄로 이동 중";
+
+            break;
+
+
+        case "miningMineral":
+
+            text =
+                "⛏️ 미네랄 채취 중";
+
+            break;
+
+
+        case "returnMineral":
+
+            text =
+                "📦 미네랄 운반 중";
+
+            break;
+
+
+        case "movingToBuildGas":
+
+            text =
+                "🏗️ 가스 시설 건설 장소로 이동 중";
+
+            break;
+
+
+        case "buildingGas":
+
+            text =
+                "🏗️ 가스 채취 시설 건설 중";
+
+            break;
+
+
+        case "movingToGas":
+
+            text =
+                "🟢 가스 시설로 이동 중";
+
+            break;
+
+
+        case "miningGas":
+
+            text =
+                "🟢 가스 채취 중";
+
+            break;
+
+
+        case "returnGas":
+
+            text =
+                "📦 가스 운반 중";
+
+            break;
+
+    }
+
+
+    scvStatus.innerText =
+        text;
+
+}
+
+
+function showCommandStatus(){
+
+    selectedBuilding =
+        commandCenter;
+
+
+    unitPanel.style.display =
+        "block";
+
+
+    unitIcon.innerText =
+        "🏢";
+
+
+    unitName.innerText =
+        "테란 사령부";
+
+
+    healthText.innerText =
+        "체력: " +
+        commandCenter.userData.health +
+        " / " +
+        commandCenter.userData.maxHealth;
+
+
+    healthFill.style.width =
+        "100%";
+
+
+    document
+        .getElementById(
+            "scvStatusPanel"
+        )
+        .style.display =
+        "none";
+
+
+    document
+        .getElementById(
+            "commandPanel"
+        )
+        .style.display =
+        "block";
+
+
+    updateQueue();
+
+}
+
+
+// ========================================================
+// 선택
 // ========================================================
 
 function clearSelection(){
@@ -1920,13 +2263,12 @@ function addSelection(unit){
 
     selectedUnits.push(unit);
 
+
     unit.userData.selected =
         true;
 
 
-    addSelectionRing(
-        unit
-    );
+    addSelectionRing(unit);
 
 }
 
@@ -1994,53 +2336,7 @@ function removeSelectionRing(unit){
 
 
 // ========================================================
-// UI
-// ========================================================
-
-function showSCVUI(){
-
-    document
-        .getElementById(
-            "commandUI"
-        )
-        .style.display =
-        "block";
-
-
-    document
-        .getElementById(
-            "selectedTitle"
-        )
-        .innerText =
-        "👨‍🚀 SCV " +
-        selectedUnits.length +
-        "기 선택";
-
-}
-
-
-function showCommandUI(){
-
-    document
-        .getElementById(
-            "commandUI"
-        )
-        .style.display =
-        "block";
-
-
-    document
-        .getElementById(
-            "selectedTitle"
-        )
-        .innerText =
-        "🏢 테란 사령부";
-
-}
-
-
-// ========================================================
-// FIND CLICKED OBJECT
+// RAYCAST
 // ========================================================
 
 const raycaster =
@@ -2077,9 +2373,7 @@ function getObjectFromClick(event){
     scene.traverse(
         object=>{
 
-            if(
-                object.isMesh
-            ){
+            if(object.isMesh){
 
                 objects.push(object);
 
@@ -2097,7 +2391,7 @@ function getObjectFromClick(event){
 
 
     if(
-        hits.length===0
+        hits.length === 0
     )
         return null;
 
@@ -2132,12 +2426,21 @@ function getObjectFromClick(event){
 // LEFT CLICK
 // ========================================================
 
+let suppressNextClick = false;
+
+
 renderer.domElement.addEventListener(
     "click",
     function(event){
 
-        if(isDragging)
+        if(suppressNextClick){
+
+            suppressNextClick =
+                false;
+
             return;
+
+        }
 
 
         const object =
@@ -2158,11 +2461,9 @@ renderer.domElement.addEventListener(
 
             clearSelection();
 
-            addSelection(
-                object
-            );
+            addSelection(object);
 
-            showSCVUI();
+            showSCVStatus(object);
 
             message(
                 "SCV 선택됨."
@@ -2181,7 +2482,7 @@ renderer.domElement.addEventListener(
 
             clearSelection();
 
-            showCommandUI();
+            showCommandStatus();
 
             message(
                 "사령부 선택됨."
@@ -2233,25 +2534,6 @@ renderer.domElement.addEventListener(
 
         }
 
-
-        // 가스 지역
-        if(
-            object.userData.type ===
-            "geyser"
-        ){
-
-            if(
-                selectedUnits.length > 0
-            ){
-
-                startGasBuilding();
-
-            }
-
-            return;
-
-        }
-
     }
 );
 
@@ -2260,9 +2542,7 @@ renderer.domElement.addEventListener(
 // MINERAL ORDER
 // ========================================================
 
-function orderMineral(
-    mineral
-){
+function orderMineral(mineral){
 
     selectedUnits.forEach(
         unit=>{
@@ -2289,6 +2569,17 @@ function orderMineral(
     );
 
 
+    if(
+        selectedUnits.length > 0
+    ){
+
+        showSCVStatus(
+            selectedUnits[0]
+        );
+
+    }
+
+
     message(
         "⛏️ SCV가 미네랄을 채취하러 갑니다."
     );
@@ -2300,9 +2591,7 @@ function orderMineral(
 // GAS ORDER
 // ========================================================
 
-function orderGas(
-    facility
-){
+function orderGas(facility){
 
     selectedUnits.forEach(
         unit=>{
@@ -2329,11 +2618,55 @@ function orderGas(
     );
 
 
+    if(
+        selectedUnits.length > 0
+    ){
+
+        showSCVStatus(
+            selectedUnits[0]
+        );
+
+    }
+
+
     message(
         "🟢 SCV가 가스를 채취하러 갑니다."
     );
 
 }
+
+
+// ========================================================
+// GAS BUILD BUTTON
+// ========================================================
+
+document
+    .getElementById(
+        "gasBuildButton"
+    )
+    .onclick =
+    function(){
+
+        if(
+            selectedUnits.length === 0
+        ){
+
+            message(
+                "SCV를 먼저 선택하세요."
+            );
+
+            return;
+
+        }
+
+
+        const builder =
+            selectedUnits[0];
+
+
+        startGasBuilding();
+
+    };
 
 
 // ========================================================
@@ -2345,7 +2678,7 @@ function startGasBuilding(){
     if(gasFacility){
 
         message(
-            "이미 가스 시설이 있습니다."
+            "이미 가스 채취 시설이 있습니다."
         );
 
         return;
@@ -2356,7 +2689,7 @@ function startGasBuilding(){
     if(buildingGas){
 
         message(
-            "가스 시설을 건설 중입니다."
+            "가스 채취 시설을 건설 중입니다."
         );
 
         return;
@@ -2381,20 +2714,27 @@ function startGasBuilding(){
         selectedUnits[0];
 
 
+    builder.userData.target =
+        gasGeyser;
+
+
     builder.userData.state =
         "movingToBuildGas";
 
 
-    builder.userData.target =
-        gasGeyser;
+    builder.userData.buildStart =
+        null;
 
 
     buildingGas =
         true;
 
 
+    showSCVStatus(builder);
+
+
     message(
-        "🏗️ SCV가 가스 시설을 건설하러 갑니다."
+        "🏗️ SCV가 가스 시설을 건설하러 이동합니다."
     );
 
 }
@@ -2412,7 +2752,7 @@ renderer.domElement.addEventListener(
 
 
         if(
-            selectedUnits.length===0
+            selectedUnits.length === 0
         )
             return;
 
@@ -2439,7 +2779,7 @@ renderer.domElement.addEventListener(
         }
 
 
-        // 가스
+        // 가스 시설
         if(
             object &&
             object.userData.type ===
@@ -2455,7 +2795,6 @@ renderer.domElement.addEventListener(
         }
 
 
-        // 땅
         mouse.x =
             event.clientX /
             window.innerWidth *
@@ -2536,16 +2875,13 @@ renderer.domElement.addEventListener(
 // DRAG SELECT
 // ========================================================
 
-let isDragging =
-    false;
+let isMouseDown = false;
 
+let isDragging = false;
 
-let dragStartX =
-    0;
+let dragStartX = 0;
 
-
-let dragStartY =
-    0;
+let dragStartY = 0;
 
 
 const selectionBox =
@@ -2558,8 +2894,14 @@ renderer.domElement.addEventListener(
     "mousedown",
     function(event){
 
-        if(event.button !== 0)
+        if(
+            event.button !== 0
+        )
             return;
+
+
+        isMouseDown =
+            true;
 
 
         isDragging =
@@ -2581,16 +2923,32 @@ window.addEventListener(
     "mousemove",
     function(event){
 
-        if(
-            Math.abs(
-                event.clientX -
-                dragStartX
-            ) > 8 ||
+        if(!isMouseDown)
+            return;
 
-            Math.abs(
-                event.clientY -
-                dragStartY
-            ) > 8
+
+        const distance =
+            Math.sqrt(
+
+                Math.pow(
+                    event.clientX -
+                    dragStartX,
+                    2
+                )
+
+                +
+
+                Math.pow(
+                    event.clientY -
+                    dragStartY,
+                    2
+                )
+
+            );
+
+
+        if(
+            distance > 8
         ){
 
             isDragging =
@@ -2632,19 +2990,19 @@ window.addEventListener(
 
 
         selectionBox.style.left =
-            x+"px";
+            x + "px";
 
 
         selectionBox.style.top =
-            y+"px";
+            y + "px";
 
 
         selectionBox.style.width =
-            width+"px";
+            width + "px";
 
 
         selectionBox.style.height =
-            height+"px";
+            height + "px";
 
 
         selectionBox.style.display =
@@ -2658,8 +3016,22 @@ window.addEventListener(
     "mouseup",
     function(event){
 
+        if(
+            event.button !== 0
+        )
+            return;
+
+
+        isMouseDown =
+            false;
+
+
         if(!isDragging)
             return;
+
+
+        suppressNextClick =
+            true;
 
 
         isDragging =
@@ -2714,8 +3086,8 @@ window.addEventListener(
 
                 const screen =
                     scv.position
-                    .clone()
-                    .project(camera);
+                        .clone()
+                        .project(camera);
 
 
                 const sx =
@@ -2751,7 +3123,10 @@ window.addEventListener(
             selectedUnits.length > 0
         ){
 
-            showSCVUI();
+            showSCVStatus(
+                selectedUnits[0]
+            );
+
 
             message(
                 "👨‍🚀 SCV " +
@@ -2766,7 +3141,7 @@ window.addEventListener(
 
 
 // ========================================================
-// MOVE UNIT
+// UNIT MOVEMENT
 // ========================================================
 
 function moveUnit(
@@ -2826,7 +3201,7 @@ function moveUnit(
 
 
 // ========================================================
-// MINING
+// MINING START
 // ========================================================
 
 function startMining(
@@ -2846,6 +3221,9 @@ function startMining(
 
     scv.userData.miningDuration =
         3000;
+
+
+    updateSCVStatus(scv);
 
 
     message(
@@ -2911,6 +3289,9 @@ function updateSCVs(){
                     scv.userData.state =
                         "idle";
 
+
+                    updateSCVStatus(scv);
+
                 }
 
             }
@@ -2922,8 +3303,7 @@ function updateSCVs(){
 
             if(
                 state ===
-                "movingToMineral"
-                &&
+                "movingToMineral" &&
                 target
             ){
 
@@ -2976,8 +3356,11 @@ function updateSCVs(){
                         true;
 
 
+                    updateSCVStatus(scv);
+
+
                     message(
-                        "📦 미네랄을 들고 사령부로 돌아갑니다."
+                        "📦 미네랄을 사령부로 운반합니다."
                     );
 
                 }
@@ -3014,13 +3397,15 @@ function updateSCVs(){
                         false;
 
 
-                    // 다시 같은 미네랄
                     scv.userData.target =
                         scv.userData.resource;
 
 
                     scv.userData.state =
                         "movingToMineral";
+
+
+                    updateSCVStatus(scv);
 
 
                     message(
@@ -3038,8 +3423,7 @@ function updateSCVs(){
 
             if(
                 state ===
-                "movingToGas"
-                &&
+                "movingToGas" &&
                 target
             ){
 
@@ -3092,8 +3476,11 @@ function updateSCVs(){
                         true;
 
 
+                    updateSCVStatus(scv);
+
+
                     message(
-                        "🟢 가스를 들고 사령부로 돌아갑니다."
+                        "📦 가스를 사령부로 운반합니다."
                     );
 
                 }
@@ -3130,13 +3517,15 @@ function updateSCVs(){
                         false;
 
 
-                    // 다시 가스 시설
                     scv.userData.target =
                         scv.userData.resource;
 
 
                     scv.userData.state =
                         "movingToGas";
+
+
+                    updateSCVStatus(scv);
 
 
                     message(
@@ -3154,8 +3543,7 @@ function updateSCVs(){
 
             if(
                 state ===
-                "movingToBuildGas"
-                &&
+                "movingToBuildGas" &&
                 target
             ){
 
@@ -3174,6 +3562,9 @@ function updateSCVs(){
 
                     scv.userData.buildStart =
                         Date.now();
+
+
+                    updateSCVStatus(scv);
 
 
                     message(
@@ -3217,6 +3608,13 @@ function updateSCVs(){
                     scv.userData.buildStart =
                         null;
 
+
+                    buildingGas =
+                        false;
+
+
+                    updateSCVStatus(scv);
+
                 }
 
             }
@@ -3228,12 +3626,12 @@ function updateSCVs(){
 
 
 // ========================================================
-// SCV PRODUCTION
+// SCV 생산
 // ========================================================
 
 document
     .getElementById(
-        "trainSCV"
+        "scvProduceButton"
     )
     .onclick =
     function(){
@@ -3277,7 +3675,7 @@ document
 
 
         message(
-            "👨‍🚀 SCV 생산 대기열에 추가됨."
+            "👨‍🚀 SCV 생산 대기열에 추가되었습니다."
         );
 
 
@@ -3293,7 +3691,7 @@ document
 
 
 // ========================================================
-// PRODUCE SCV
+// SCV 생산 처리
 // ========================================================
 
 function produceSCV(){
@@ -3304,13 +3702,6 @@ function produceSCV(){
 
         producingSCV =
             false;
-
-        document
-            .getElementById(
-                "progressArea"
-            )
-            .style.display =
-            "none";
 
         return;
 
@@ -3325,14 +3716,6 @@ function produceSCV(){
 
 
     updateQueue();
-
-
-    document
-        .getElementById(
-            "progressArea"
-        )
-        .style.display =
-        "block";
 
 
     const start =
@@ -3352,25 +3735,8 @@ function produceSCV(){
                     start;
 
 
-                const percent =
-                    Math.min(
-                        100,
-                        elapsed /
-                        duration *
-                        100
-                    );
-
-
-                document
-                    .getElementById(
-                        "progressBar"
-                    )
-                    .style.width =
-                    percent+"%";
-
-
                 if(
-                    percent >= 100
+                    elapsed >= duration
                 ){
 
                     clearInterval(
@@ -3384,18 +3750,19 @@ function produceSCV(){
                         );
 
 
-                    // 사령부 오른쪽에 생성
+                    const n =
+                        scvs.length;
+
+
                     newSCV.position.set(
 
-                        15 +
-                        (scvs.length % 3)*4,
+                        16 +
+                        (n % 3)*4,
 
                         0,
 
                         48 +
-                        Math.floor(
-                            scvs.length/3
-                        )*4
+                        Math.floor(n/3)*4
 
                     );
 
@@ -3417,22 +3784,6 @@ function produceSCV(){
                         producingSCV =
                             false;
 
-
-                        document
-                            .getElementById(
-                                "progressArea"
-                            )
-                            .style.display =
-                            "none";
-
-
-                        document
-                            .getElementById(
-                                "progressBar"
-                            )
-                            .style.width =
-                            "0%";
-
                     }
 
                 }
@@ -3445,15 +3796,15 @@ function produceSCV(){
 
 
 // ========================================================
-// EDGE CAMERA MOVEMENT
+// EDGE CAMERA
 // ========================================================
 
 let mouseX =
-    window.innerWidth/2;
+    window.innerWidth / 2;
 
 
 let mouseY =
-    window.innerHeight/2;
+    window.innerHeight / 2;
 
 
 window.addEventListener(
@@ -3473,7 +3824,6 @@ window.addEventListener(
 
 function updateEdgeCamera(){
 
-    // 미니맵 영역에서는 카메라 이동 X
     const minimap =
         document.getElementById(
             "minimapContainer"
@@ -3483,6 +3833,8 @@ function updateEdgeCamera(){
     const rect =
         minimap.getBoundingClientRect();
 
+
+    // 미니맵 위에서는 이동하지 않음
 
     if(
 
@@ -3503,8 +3855,10 @@ function updateEdgeCamera(){
     let dz = 0;
 
 
+    // 왼쪽
+
     if(
-        mouseX < EDGE_SIZE
+        mouseX <= EDGE_SIZE
     ){
 
         dx = -1;
@@ -3512,8 +3866,10 @@ function updateEdgeCamera(){
     }
 
 
+    // 오른쪽
+
     if(
-        mouseX >
+        mouseX >=
         window.innerWidth -
         EDGE_SIZE
     ){
@@ -3523,8 +3879,10 @@ function updateEdgeCamera(){
     }
 
 
+    // 위쪽
+
     if(
-        mouseY < EDGE_SIZE
+        mouseY <= EDGE_SIZE
     ){
 
         dz = -1;
@@ -3532,14 +3890,31 @@ function updateEdgeCamera(){
     }
 
 
+    // 아래쪽
+
     if(
-        mouseY >
+        mouseY >=
         window.innerHeight -
-        EDGE_SIZE -
-        160
+        45
     ){
 
-        dz = 1;
+        if(
+            mouseY < rect.top
+        ){
+
+            dz = 1;
+
+        }
+
+    }
+
+
+    if(
+        dx === 0 &&
+        dz === 0
+    ){
+
+        return;
 
     }
 
@@ -3549,10 +3924,6 @@ function updateEdgeCamera(){
             dx*dx +
             dz*dz
         );
-
-
-    if(length === 0)
-        return;
 
 
     dx /= length;
@@ -3574,7 +3945,7 @@ function updateEdgeCamera(){
 
 
 // ========================================================
-// CAMERA CLAMP
+// CAMERA LIMIT
 // ========================================================
 
 function clampCamera(){
@@ -3655,8 +4026,7 @@ function resizeMinimap(){
 
 
     const dpr =
-        window.devicePixelRatio ||
-        1;
+        window.devicePixelRatio || 1;
 
 
     minimap.width =
@@ -3682,10 +4052,7 @@ function resizeMinimap(){
 resizeMinimap();
 
 
-function worldToMini(
-    x,
-    z
-){
+function worldToMini(x,z){
 
     const width =
         minimap.clientWidth;
@@ -3730,7 +4097,8 @@ function drawMinimap(){
     );
 
 
-    // 바닥
+    // 배경
+
     miniCtx.fillStyle =
         "#18261f";
 
@@ -3744,6 +4112,7 @@ function drawMinimap(){
 
 
     // 격자
+
     miniCtx.strokeStyle =
         "#294137";
 
@@ -3799,6 +4168,7 @@ function drawMinimap(){
 
 
     // 미네랄
+
     mineralObjects.forEach(
         mineral=>{
 
@@ -3830,6 +4200,7 @@ function drawMinimap(){
 
 
     // 가스
+
     if(gasGeyser){
 
         const p =
@@ -3859,6 +4230,7 @@ function drawMinimap(){
 
 
     // 가스 시설
+
     if(gasFacility){
 
         const p =
@@ -3887,6 +4259,7 @@ function drawMinimap(){
 
 
     // 사령부
+
     if(commandCenter){
 
         const p =
@@ -3911,6 +4284,7 @@ function drawMinimap(){
 
 
     // SCV
+
     scvs.forEach(
         scv=>{
 
@@ -3938,7 +4312,8 @@ function drawMinimap(){
     );
 
 
-    // 현재 화면 표시
+    // 현재 화면
+
     const viewSize =
         75;
 
@@ -4067,6 +4442,7 @@ function animate(){
 
 
     // 미네랄 애니메이션
+
     mineralObjects.forEach(
         (mineral,index)=>{
 
@@ -4086,6 +4462,7 @@ function animate(){
 
 
     // 가스 애니메이션
+
     if(gasGeyser){
 
         gasGeyser.children.forEach(
@@ -4106,6 +4483,19 @@ function animate(){
                 }
 
             }
+        );
+
+    }
+
+
+    // 선택된 SCV 상태 업데이트
+
+    if(
+        selectedUnits.length > 0
+    ){
+
+        updateSCVStatus(
+            selectedUnits[0]
         );
 
     }
@@ -4154,7 +4544,7 @@ window.addEventListener(
 
 
 // ========================================================
-// INITIAL UI
+// INITIAL
 // ========================================================
 
 updateResources();
