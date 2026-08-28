@@ -3,35 +3,32 @@ import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="Terran RTS",
-    page_icon="🛰️",
+    page_icon="⚔️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-html = r"""
+GAME = r"""
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="UTF-8">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
-
 *{
     box-sizing:border-box;
+    user-select:none;
 }
 
 html,body{
     margin:0;
-    padding:0;
-    overflow:hidden;
     width:100%;
     height:100%;
-    background:#05070a;
+    overflow:hidden;
+    background:#05080a;
     font-family:Arial,sans-serif;
-    user-select:none;
 }
 
 #game{
@@ -44,326 +41,177 @@ canvas{
 }
 
 #raceScreen{
-
     position:fixed;
     inset:0;
-
-    background:
-        radial-gradient(
-            circle at center,
-            #182536 0%,
-            #05070a 70%
-        );
-
+    z-index:100;
     display:flex;
     justify-content:center;
     align-items:center;
-
-    z-index:100;
+    background:
+        radial-gradient(circle,#26343d 0%,#080c10 70%);
 }
 
 .raceBox{
-
-    width:430px;
-    padding:35px;
-
+    width:440px;
+    padding:40px;
     text-align:center;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(35,45,55,.96),
-            rgba(8,12,16,.96)
-        );
-
-    border:2px solid #68747c;
-
-    box-shadow:
-        0 0 50px rgba(0,0,0,.8),
-        inset 0 0 30px rgba(255,255,255,.03);
-
+    background:linear-gradient(
+        145deg,
+        rgba(40,50,56,.97),
+        rgba(8,11,14,.98)
+    );
+    border:2px solid #77858b;
     border-radius:8px;
+    box-shadow:0 0 60px #000;
 }
 
 .raceTitle{
-
+    color:#e6edef;
     font-size:42px;
-    color:#d9e0e4;
     font-weight:bold;
-    letter-spacing:5px;
-
+    letter-spacing:6px;
     margin-bottom:30px;
 }
 
 .raceButton{
-
     width:100%;
-    padding:20px;
-
-    background:
-        linear-gradient(
-            #68757b,
-            #30383c
-        );
-
-    color:white;
-
-    border:2px solid #9aa6aa;
-
-    font-size:24px;
+    padding:18px;
+    font-size:23px;
     font-weight:bold;
-
-    cursor:pointer;
-
+    color:white;
+    background:linear-gradient(#68777d,#303a3f);
+    border:2px solid #9ba7ab;
     border-radius:5px;
+    cursor:pointer;
 }
 
 .raceButton:hover{
-
-    background:
-        linear-gradient(
-            #8b999e,
-            #404a4e
-        );
-
-    box-shadow:
-        0 0 20px rgba(180,220,255,.4);
+    background:linear-gradient(#819096,#3c484d);
 }
 
 #topUI{
-
     position:fixed;
-
     top:10px;
     left:50%;
-
     transform:translateX(-50%);
-
     z-index:20;
-
     display:flex;
-    gap:12px;
+    gap:10px;
 }
 
 .resource{
-
     min-width:130px;
-
-    padding:10px 18px;
-
-    background:
-        rgba(10,15,20,.88);
-
-    border:
-        1px solid #52616a;
-
-    border-radius:5px;
-
-    color:white;
-
-    font-size:17px;
-
+    padding:9px 16px;
     text-align:center;
-
-    box-shadow:
-        0 0 12px rgba(0,0,0,.5);
+    color:white;
+    background:rgba(8,13,17,.9);
+    border:1px solid #617078;
+    border-radius:5px;
 }
 
 #sidePanel{
-
     position:fixed;
-
+    top:70px;
     right:12px;
-    top:80px;
-
-    width:260px;
-
+    width:275px;
     min-height:220px;
-
     z-index:20;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(20,27,31,.96),
-            rgba(7,10,13,.96)
-        );
-
-    border:1px solid #69757b;
-
-    border-radius:6px;
-
-    padding:15px;
-
-    color:#e8eef0;
-
     display:none;
-
-    box-shadow:
-        0 0 25px rgba(0,0,0,.7);
+    padding:15px;
+    color:#e9eef0;
+    background:linear-gradient(
+        145deg,
+        rgba(25,32,36,.97),
+        rgba(7,10,13,.98)
+    );
+    border:1px solid #707d83;
+    border-radius:6px;
+    box-shadow:0 0 30px #000;
 }
 
 .panelTitle{
-
-    font-size:22px;
-
+    font-size:21px;
     font-weight:bold;
-
     padding-bottom:10px;
-
-    border-bottom:
-        1px solid #455158;
-
-    margin-bottom:12px;
+    margin-bottom:10px;
+    border-bottom:1px solid #465258;
 }
 
 .stat{
-
     padding:6px 0;
-
-    color:#c4cdd1;
+    color:#c9d1d4;
 }
 
 .actionButton{
-
     width:100%;
-
-    padding:11px;
-
+    padding:10px;
     margin-top:7px;
-
-    background:
-        linear-gradient(
-            #59676d,
-            #30383d
-        );
-
     color:white;
-
+    background:linear-gradient(#5d6c72,#30393d);
     border:1px solid #829096;
-
-    cursor:pointer;
-
     border-radius:4px;
+    cursor:pointer;
 }
 
 .actionButton:hover{
-
-    background:
-        linear-gradient(
-            #718087,
-            #3d494e
-        );
-}
-
-.actionButton:disabled{
-
-    opacity:.4;
-    cursor:not-allowed;
+    background:linear-gradient(#738288,#3c484d);
 }
 
 #buildMessage{
-
     position:fixed;
-
     left:50%;
     bottom:100px;
-
     transform:translateX(-50%);
-
-    z-index:30;
-
-    padding:10px 18px;
-
-    background:
-        rgba(0,0,0,.75);
-
-    border:
-        1px solid #55636a;
-
-    border-radius:5px;
-
-    color:white;
-
+    z-index:40;
     display:none;
-
+    padding:10px 18px;
+    color:white;
     text-align:center;
+    background:rgba(0,0,0,.8);
+    border:1px solid #65737a;
+    border-radius:5px;
+}
+
+#selectionBox{
+    position:fixed;
+    z-index:50;
+    display:none;
+    border:1px solid #69bdff;
+    background:rgba(50,150,255,.13);
+    pointer-events:none;
 }
 
 #miniMap{
-
     position:fixed;
-
     left:15px;
     bottom:15px;
-
-    width:230px;
-    height:150px;
-
+    width:240px;
+    height:155px;
     z-index:25;
-
-    background:#101820;
-
-    border:
-        2px solid #64727a;
-
+    background:#122019;
+    border:2px solid #66747a;
     border-radius:5px;
-
     overflow:hidden;
-
-    box-shadow:
-        0 0 20px rgba(0,0,0,.7);
-
     cursor:pointer;
 }
 
 #miniCanvas{
-
     width:100%;
     height:100%;
 }
 
-#selectionBox{
-
-    position:fixed;
-
-    border:
-        1px solid #61b8ff;
-
-    background:
-        rgba(70,160,255,.12);
-
-    display:none;
-
-    z-index:50;
-
-    pointer-events:none;
-}
-
 #help{
-
     position:fixed;
-
-    left:50%;
-
     bottom:15px;
-
+    left:50%;
     transform:translateX(-50%);
-
-    color:#aeb8bd;
-
-    background:
-        rgba(0,0,0,.55);
-
-    padding:8px 15px;
-
-    border-radius:4px;
-
-    font-size:13px;
-
     z-index:20;
+    padding:8px 14px;
+    color:#b7c0c4;
+    background:rgba(0,0,0,.6);
+    border-radius:4px;
+    font-size:13px;
 }
-
 </style>
 </head>
 
@@ -372,22 +220,12 @@ canvas{
 <div id="game"></div>
 
 <div id="raceScreen">
-
     <div class="raceBox">
-
-        <div class="raceTitle">
-            TERRAN
-        </div>
-
-        <button
-            class="raceButton"
-            id="startButton"
-        >
+        <div class="raceTitle">TERRAN</div>
+        <button class="raceButton" id="startButton">
             테란으로 시작
         </button>
-
     </div>
-
 </div>
 
 <div id="topUI">
@@ -410,16 +248,8 @@ canvas{
 </div>
 
 <div id="sidePanel">
-
-    <div
-        class="panelTitle"
-        id="panelTitle"
-    >
-        상태
-    </div>
-
+    <div class="panelTitle" id="panelTitle">상태</div>
     <div id="panelContent"></div>
-
 </div>
 
 <div id="buildMessage"></div>
@@ -427,74 +257,44 @@ canvas{
 <div id="selectionBox"></div>
 
 <div id="miniMap">
-
-    <canvas
-        id="miniCanvas"
-        width="230"
-        height="150"
-    ></canvas>
-
+    <canvas id="miniCanvas" width="240" height="155"></canvas>
 </div>
 
 <div id="help">
-
-    좌클릭: 선택 / 드래그 선택　|　
-    우클릭: 이동　|　
-    화면 끝: 카메라 이동　|　
-    미니맵 클릭: 위치 이동
-
+    좌클릭: 선택　|　좌클릭 드래그: 여러 유닛 선택　|　
+    우클릭: 이동　|　화면 가장자리: 카메라 이동
 </div>
 
 
 <script>
 
-
 // ============================================================
 // 기본 설정
 // ============================================================
 
-const scene =
-    new THREE.Scene();
+const scene = new THREE.Scene();
 
-scene.background =
-    new THREE.Color(0x070b0e);
+scene.background = new THREE.Color(0x07100b);
 
-
-const camera =
-    new THREE.PerspectiveCamera(
-        55,
-        window.innerWidth /
-        window.innerHeight,
-        .1,
-        500
-    );
-
-
-camera.position.set(
-    0,
-    42,
-    25
+const camera = new THREE.PerspectiveCamera(
+    55,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    500
 );
 
-camera.lookAt(
-    0,
-    0,
-    0
-);
+camera.position.set(0,42,28);
 
-
-const renderer =
-    new THREE.WebGLRenderer({
-        antialias:true
-    });
+const renderer = new THREE.WebGLRenderer({
+    antialias:true
+});
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
 
-renderer.shadowMap.enabled =
-    true;
+renderer.shadowMap.enabled = true;
 
 document
     .getElementById("game")
@@ -505,35 +305,31 @@ document
 // 조명
 // ============================================================
 
-const ambient =
+scene.add(
     new THREE.AmbientLight(
-        0x82909a,
-        .7
-    );
+        0x829099,
+        0.75
+    )
+);
 
-scene.add(ambient);
-
-
-const sun =
-    new THREE.DirectionalLight(
-        0xffffff,
-        1.5
-    );
+const sun = new THREE.DirectionalLight(
+    0xffffff,
+    1.5
+);
 
 sun.position.set(
-    15,
-    35,
+    20,
+    40,
     20
 );
 
-sun.castShadow =
-    true;
+sun.castShadow = true;
 
 scene.add(sun);
 
 
 // ============================================================
-// 상태
+// 게임 변수
 // ============================================================
 
 let gameStarted = false;
@@ -541,47 +337,35 @@ let gameStarted = false;
 let minerals = 500;
 let gas = 0;
 
-let selectedUnits = [];
-
-let selectedObject = null;
-
-let buildMode = false;
-
-let buildPreview = null;
-
-let buildPreviewValid = false;
-
-let currentBuildSCV = null;
-
-let scvProductionQueue = 0;
-
-const MAX_SCV_QUEUE = 5;
+const WORLD_SIZE = 90;
 
 const SCV_COST = 50;
-
 const SCV_BUILD_TIME = 10;
+
+const MINERAL_TIME = 3;
+const GAS_TIME = 3;
+
+const SCV_MINERAL_AMOUNT = 50;
+const SCV_GAS_AMOUNT = 25;
 
 const GAS_BUILD_TIME = 15;
 
-const MINERAL_TIME = 3;
+const MAX_SCV_QUEUE = 5;
 
-const SCV_MINERAL_AMOUNT = 50;
+let scvQueue = 0;
 
-const SCV_GAS_AMOUNT = 25;
+let selectedUnits = [];
+let selectedObject = null;
 
-
-// ============================================================
-// 배열
-// ============================================================
+let buildMode = false;
+let buildPreview = null;
+let buildPreviewValid = false;
+let currentBuilder = null;
 
 const scvs = [];
-
-const mineralsNodes = [];
-
+const mineralNodes = [];
 const geysers = [];
-
 const gasFacilities = [];
-
 const buildings = [];
 
 
@@ -589,33 +373,24 @@ const buildings = [];
 // 맵
 // ============================================================
 
-const WORLD_SIZE = 90;
-
-const groundGeometry =
+const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(
         WORLD_SIZE,
         WORLD_SIZE,
-        40,
-        40
-    );
-
-const groundMaterial =
+        30,
+        30
+    ),
     new THREE.MeshStandardMaterial({
-        color:0x17241b,
+        color:0x17251a,
         roughness:.95
-    });
+    })
+);
 
-const ground =
-    new THREE.Mesh(
-        groundGeometry,
-        groundMaterial
-    );
+ground.rotation.x = -Math.PI / 2;
 
-ground.rotation.x =
-    -Math.PI / 2;
+ground.receiveShadow = true;
 
-ground.receiveShadow =
-    true;
+ground.userData.type = "ground";
 
 scene.add(ground);
 
@@ -624,25 +399,22 @@ scene.add(ground);
 // 지형 장식
 // ============================================================
 
-for(let i=0;i<170;i++){
+for(let i=0;i<180;i++){
 
-    const rock =
-        new THREE.Mesh(
-            new THREE.DodecahedronGeometry(
-                .15 +
-                Math.random()*.45,
-                0
-            ),
-            new THREE.MeshStandardMaterial({
-                color:
-                    0x29332f
-            })
-        );
+    const rock = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(
+            .15 + Math.random()*.45,
+            0
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x2b3530
+        })
+    );
 
     rock.position.set(
-        (Math.random()-.5)*80,
-        .1,
-        (Math.random()-.5)*80
+        (Math.random()-.5)*82,
+        .15,
+        (Math.random()-.5)*82
     );
 
     rock.rotation.set(
@@ -656,22 +428,161 @@ for(let i=0;i<170;i++){
 
 
 // ============================================================
-// 재질
+// 미네랄
+// 사령부에서 조금 떨어진 왼쪽 지역
 // ============================================================
 
-function material(
-    color,
-    metal=.2,
-    rough=.7
-){
+const mineralPositions = [
 
-    return new THREE.MeshStandardMaterial({
-        color:color,
-        metalness:metal,
-        roughness:rough
-    });
+    [-20,-10],
+    [-18,-8],
+    [-16,-11],
+    [-14,-9],
+    [-12,-12],
 
+    [-20,-5],
+    [-18,-3],
+    [-16,-6],
+    [-14,-4],
+    [-12,-7],
+
+    [-20,0],
+    [-18,2],
+    [-16,-1],
+    [-14,1],
+    [-12,-2],
+
+    [-19,5],
+    [-17,7],
+    [-15,4],
+    [-13,6],
+
+    [-19,10],
+    [-16,11],
+    [-13,9]
+];
+
+
+function createMineral(x,z){
+
+    const group = new THREE.Group();
+
+    for(let i=0;i<4;i++){
+
+        const crystal = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(
+                .65 + Math.random()*.45,
+                0
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x2196ff,
+                emissive:0x064c85,
+                emissiveIntensity:.65,
+                metalness:.45,
+                roughness:.25
+            })
+        );
+
+        crystal.position.set(
+            (Math.random()-.5)*1.3,
+            .7 + Math.random()*.4,
+            (Math.random()-.5)*1.3
+        );
+
+        crystal.scale.y =
+            1.4 + Math.random();
+
+        crystal.rotation.set(
+            Math.random(),
+            Math.random(),
+            Math.random()
+        );
+
+        crystal.castShadow = true;
+
+        group.add(crystal);
+    }
+
+    group.position.set(x,0,z);
+
+    group.userData = {
+        type:"mineral",
+        amount:1500
+    };
+
+    mineralNodes.push(group);
+
+    scene.add(group);
 }
+
+
+mineralPositions.forEach(
+    p => createMineral(p[0],p[1])
+);
+
+
+// ============================================================
+// 가스 채취 장소
+// 1개만 존재
+// ============================================================
+
+function createGeyser(x,z){
+
+    const group = new THREE.Group();
+
+    const rock = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            3,
+            3.4,
+            .6,
+            24
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x303a35,
+            roughness:.9
+        })
+    );
+
+    rock.position.y=.3;
+
+    group.add(rock);
+
+
+    const gas = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            1.8,
+            2.2,
+            1.2,
+            20
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x16b765,
+            emissive:0x075d30,
+            emissiveIntensity:1.5,
+            transparent:true,
+            opacity:.72
+        })
+    );
+
+    gas.position.y=1;
+
+    group.add(gas);
+
+
+    group.position.set(x,0,z);
+
+    group.userData = {
+        type:"geyser",
+        hasFacility:false,
+        gasMesh:gas
+    };
+
+    geysers.push(group);
+
+    scene.add(group);
+}
+
+createGeyser(14,7);
 
 
 // ============================================================
@@ -680,140 +591,97 @@ function material(
 
 function createCommandCenter(){
 
-    const group =
-        new THREE.Group();
+    const group = new THREE.Group();
 
 
-    // 본체
+    const base = new THREE.Mesh(
+        new THREE.BoxGeometry(8,4,7),
+        new THREE.MeshStandardMaterial({
+            color:0x555f63,
+            metalness:.75,
+            roughness:.35
+        })
+    );
 
-    const body =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                8,
-                4,
-                7
-            ),
-            material(
-                0x555f62,
-                .8,
-                .35
-            )
-        );
+    base.position.y=2;
+    base.castShadow=true;
 
-    body.position.y = 2;
-
-    body.castShadow = true;
-
-    group.add(body);
+    group.add(base);
 
 
-    // 상부
+    const upper = new THREE.Mesh(
+        new THREE.BoxGeometry(5.5,1.6,4.7),
+        new THREE.MeshStandardMaterial({
+            color:0x3b4549,
+            metalness:.8,
+            roughness:.3
+        })
+    );
 
-    const upper =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                5,
-                1.5,
-                4.5
-            ),
-            material(
-                0x3c4548,
-                .8,
-                .3
-            )
-        );
-
-    upper.position.y = 4.6;
+    upper.position.y=4.7;
 
     group.add(upper);
 
 
-    // 지휘실
-
-    const glass =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                3.2,
-                1.5,
-                3
-            ),
-            new THREE.MeshStandardMaterial({
-                color:0x173747,
-                metalness:.5,
-                roughness:.15,
-                transparent:true,
-                opacity:.85
-            })
-        );
-
-    glass.position.set(
-        0,
-        5.4,
-        0
+    const glass = new THREE.Mesh(
+        new THREE.BoxGeometry(3.3,1.5,3),
+        new THREE.MeshStandardMaterial({
+            color:0x17445a,
+            metalness:.6,
+            roughness:.15,
+            transparent:true,
+            opacity:.85
+        })
     );
+
+    glass.position.y=5.5;
 
     group.add(glass);
 
 
-    // 안테나
+    const antenna = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            .12,.12,4,10
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x202628,
+            metalness:.8
+        })
+    );
 
-    const antenna =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                .12,
-                .12,
-                4,
-                10
-            ),
-            material(
-                0x22282a,
-                .8,
-                .3
-            )
-        );
-
-    antenna.position.y = 7.5;
+    antenna.position.y=8;
 
     group.add(antenna);
 
 
-    const light =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                .25,
-                12,
-                12
-            ),
-            new THREE.MeshBasicMaterial({
-                color:0x44aaff
-            })
-        );
+    const beacon = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            .25,12,12
+        ),
+        new THREE.MeshBasicMaterial({
+            color:0x3caeff
+        })
+    );
 
-    light.position.y = 9.4;
+    beacon.position.y=10;
 
-    group.add(light);
+    group.add(beacon);
 
-
-    // 양쪽 구조물
 
     for(let side of [-1,1]){
 
-        const module =
-            new THREE.Mesh(
-                new THREE.BoxGeometry(
-                    1.5,
-                    2,
-                    5
-                ),
-                material(
-                    0x30383b,
-                    .75,
-                    .4
-                )
-            );
+        const module = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                1.5,2,5
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x30383b,
+                metalness:.7
+            })
+        );
 
         module.position.set(
-            side*4.2,
+            side*4.3,
             1.5,
             0
         );
@@ -822,22 +690,11 @@ function createCommandCenter(){
     }
 
 
-    group.position.set(
-        0,
-        0,
-        0
-    );
-
-
     group.userData = {
-
         type:"commandCenter",
-
         hp:1500,
         maxHp:1500
-
     };
-
 
     buildings.push(group);
 
@@ -846,209 +703,8 @@ function createCommandCenter(){
     return group;
 }
 
-
 const commandCenter =
     createCommandCenter();
-
-
-// ============================================================
-// 미네랄
-// ============================================================
-
-const mineralPositions = [
-
-    [-13,-9],
-    [-11,-7],
-    [-9,-10],
-    [-7,-8],
-    [-5,-11],
-
-    [-13,-4],
-    [-11,-2],
-    [-9,-5],
-    [-7,-3],
-    [-5,-6],
-
-    [-13,1],
-    [-11,3],
-    [-9,0],
-    [-7,2],
-    [-5,-1],
-
-    [-12,6],
-    [-10,8],
-    [-8,5],
-    [-6,7],
-
-    [-12,11],
-    [-9,12],
-    [-6,10]
-];
-
-
-function createMineral(x,z){
-
-    const group =
-        new THREE.Group();
-
-
-    for(let i=0;i<3;i++){
-
-        const crystal =
-            new THREE.Mesh(
-                new THREE.DodecahedronGeometry(
-                    .8 +
-                    Math.random()*.5,
-                    0
-                ),
-                new THREE.MeshStandardMaterial({
-                    color:0x27a8ff,
-                    emissive:0x075080,
-                    emissiveIntensity:.5,
-                    metalness:.4,
-                    roughness:.3
-                })
-            );
-
-        crystal.position.set(
-            (Math.random()-.5)*1.2,
-            .7 +
-            Math.random()*.5,
-            (Math.random()-.5)*1.2
-        );
-
-        crystal.scale.y =
-            1.4 +
-            Math.random();
-
-        crystal.rotation.set(
-            Math.random(),
-            Math.random(),
-            Math.random()
-        );
-
-        crystal.castShadow =
-            true;
-
-        group.add(crystal);
-    }
-
-
-    group.position.set(
-        x,
-        0,
-        z
-    );
-
-
-    group.userData = {
-
-        type:"mineral",
-
-        amount:1500,
-
-        busy:false
-
-    };
-
-
-    mineralsNodes.push(group);
-
-    scene.add(group);
-}
-
-
-mineralPositions.forEach(
-    p =>
-        createMineral(
-            p[0],
-            p[1]
-        )
-);
-
-
-// ============================================================
-// 가스 채취 장소
-// ============================================================
-
-function createGeyser(x,z){
-
-    const group =
-        new THREE.Group();
-
-
-    const base =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                2.7,
-                3,
-                .5,
-                20
-            ),
-            material(
-                0x343b37,
-                .4,
-                .9
-            )
-        );
-
-    base.position.y =
-        .25;
-
-    group.add(base);
-
-
-    const gas =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.8,
-                2.2,
-                1.3,
-                20
-            ),
-            new THREE.MeshStandardMaterial({
-                color:0x21bd6a,
-                emissive:0x0d6f3c,
-                emissiveIntensity:1,
-                transparent:true,
-                opacity:.7
-            })
-        );
-
-    gas.position.y =
-        .9;
-
-    group.add(gas);
-
-
-    group.position.set(
-        x,
-        0,
-        z
-    );
-
-
-    group.userData = {
-
-        type:"geyser",
-
-        gasMesh:gas,
-
-        hasFacility:false
-
-    };
-
-
-    geysers.push(group);
-
-    scene.add(group);
-}
-
-
-createGeyser(
-    14,
-    7
-);
 
 
 // ============================================================
@@ -1057,105 +713,78 @@ createGeyser(
 
 function createSCV(x,z){
 
-    const group =
-        new THREE.Group();
+    const group = new THREE.Group();
 
 
-    // 몸체
+    // 본체
+    const body = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.7,.8,2
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0xc3a53b,
+            metalness:.6,
+            roughness:.4
+        })
+    );
 
-    const body =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                1.7,
-                .8,
-                2
-            ),
-            material(
-                0xc0a73e,
-                .65,
-                .4
-            )
-        );
-
-    body.position.y =
-        .8;
-
-    body.castShadow =
-        true;
+    body.position.y=.8;
+    body.castShadow=true;
 
     group.add(body);
 
 
-    // 운전석
-
-    const cabin =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                1.2,
-                .7,
-                1
-            ),
-            material(
-                0x59656a,
-                .7,
-                .3
-            )
-        );
+    // 조종석
+    const cabin = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.2,.7,1
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x59666b,
+            metalness:.65,
+            roughness:.25
+        })
+    );
 
     cabin.position.set(
-        0,
-        1.4,
-        -.2
+        0,1.35,-.2
     );
 
     group.add(cabin);
 
 
-    // 앞쪽 작업 장치
-
-    const arm =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                1.8,
-                .25,
-                .5
-            ),
-            material(
-                0x8b772d,
-                .7,
-                .4
-            )
-        );
-
-    arm.position.set(
-        0,
-        .75,
-        -1.25
+    // 앞 장비
+    const drill = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.9,.25,.55
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x8e7628,
+            metalness:.7
+        })
     );
 
-    group.add(arm);
+    drill.position.set(
+        0,.75,-1.3
+    );
+
+    group.add(drill);
 
 
     // 바퀴
-
     for(let side of [-1,1]){
 
         for(let zpos of [-.7,.7]){
 
-            const wheel =
-                new THREE.Mesh(
-                    new THREE.CylinderGeometry(
-                        .4,
-                        .4,
-                        .35,
-                        12
-                    ),
-                    material(
-                        0x16191a,
-                        .8,
-                        .8
-                    )
-                );
+            const wheel = new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                    .38,.38,.35,12
+                ),
+                new THREE.MeshStandardMaterial({
+                    color:0x171a1b,
+                    metalness:.8
+                })
+            );
 
             wheel.rotation.z =
                 Math.PI/2;
@@ -1171,11 +800,7 @@ function createSCV(x,z){
     }
 
 
-    group.position.set(
-        x,
-        0,
-        z
-    );
+    group.position.set(x,0,z);
 
 
     group.userData = {
@@ -1183,22 +808,21 @@ function createSCV(x,z){
         type:"scv",
 
         hp:50,
-
         maxHp:50,
 
-        state:"idle",
+        state:"대기",
+
+        speed:7,
+
+        moveTarget:null,
+        moveCallback:null,
 
         target:null,
 
-        carrying:0,
-
+        carryingMineral:0,
         carryingGas:0,
 
-        buildTarget:null,
-
-        selected:false,
-
-        speed:7
+        selected:false
 
     };
 
@@ -1211,12 +835,11 @@ function createSCV(x,z){
 }
 
 
-// 초기 SCV 5개
-
+// 처음 SCV 5개
 for(let i=0;i<5;i++){
 
     createSCV(
-        5 + i*1.7,
+        6 + i*1.7,
         5
     );
 }
@@ -1226,144 +849,109 @@ for(let i=0;i<5;i++){
 // 가스 시설
 // ============================================================
 
-function createGasFacility(
-    geyser
-){
+function createGasFacility(geyser){
 
-    const group =
-        new THREE.Group();
+    const group = new THREE.Group();
 
 
-    const platform =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                3.2,
-                3.5,
-                .7,
-                24
-            ),
-            material(
-                0x30383a,
-                .8,
-                .35
-            )
-        );
+    const platform = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            3.2,3.5,.7,24
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x30383b,
+            metalness:.8,
+            roughness:.35
+        })
+    );
 
-    platform.position.y =
-        .35;
+    platform.position.y=.35;
 
     group.add(platform);
 
 
-    const ring =
-        new THREE.Mesh(
-            new THREE.TorusGeometry(
-                2.5,
-                .25,
-                10,
-                32
-            ),
-            material(
-                0x737b7d,
-                .8,
-                .3
-            )
-        );
+    const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(
+            2.5,.25,10,32
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x737d80,
+            metalness:.8
+        })
+    );
 
     ring.rotation.x =
         Math.PI/2;
 
-    ring.position.y =
-        .85;
+    ring.position.y=.85;
 
     group.add(ring);
 
 
-    const tank =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.55,
-                1.85,
-                3.8,
-                20
-            ),
-            material(
-                0x4b5558,
-                .8,
-                .35
-            )
-        );
+    const tank = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            1.55,1.85,3.8,20
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x4b5558,
+            metalness:.8,
+            roughness:.35
+        })
+    );
 
-    tank.position.y =
-        2.7;
+    tank.position.y=2.7;
 
     group.add(tank);
 
 
-    const top =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.15,
-                1.15,
-                .45,
-                20
-            ),
-            material(
-                0x272d2f,
-                .8,
-                .3
-            )
-        );
+    const top = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            1.15,1.15,.45,20
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x272d2f,
+            metalness:.8
+        })
+    );
 
-    top.position.y =
-        4.75;
+    top.position.y=4.75;
 
     group.add(top);
 
 
-    const core =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                .85,
-                20,
-                20
-            ),
-            new THREE.MeshStandardMaterial({
-                color:0x35ff91,
-                emissive:0x12b95e,
-                emissiveIntensity:2.2,
-                transparent:true,
-                opacity:.9
-            })
-        );
+    const core = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            .85,20,20
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x35ff91,
+            emissive:0x0fae54,
+            emissiveIntensity:2,
+            transparent:true,
+            opacity:.9
+        })
+    );
 
-    core.position.y =
-        5.15;
+    core.position.y=5.2;
 
     group.add(core);
 
 
     // 파이프
-
     for(let i=0;i<4;i++){
 
         const angle =
             i/4*Math.PI*2;
 
-        const pipe =
-            new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    .16,
-                    .16,
-                    3.2,
-                    10
-                ),
-                material(
-                    0x252b2d,
-                    .8,
-                    .3
-                )
-            );
+        const pipe = new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                .16,.16,3.2,10
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x242a2c,
+                metalness:.8
+            })
+        );
 
         pipe.position.set(
             Math.cos(angle)*2,
@@ -1375,79 +963,37 @@ function createGasFacility(
     }
 
 
-    // 경고등
-
-    for(let i=0;i<4;i++){
-
-        const angle =
-            i/4*Math.PI*2;
-
-        const light =
-            new THREE.Mesh(
-                new THREE.SphereGeometry(
-                    .13,
-                    10,
-                    10
-                ),
-                new THREE.MeshBasicMaterial({
-                    color:0xff4422
-                })
-            );
-
-        light.position.set(
-            Math.cos(angle)*2.45,
-            1.1,
-            Math.sin(angle)*2.45
-        );
-
-        group.add(light);
-    }
-
-
     // 가스 파티클
-
-    const particleGroup =
+    const particles =
         new THREE.Group();
 
+    for(let i=0;i<50;i++){
 
-    for(let i=0;i<40;i++){
-
-        const particle =
-            new THREE.Mesh(
-                new THREE.SphereGeometry(
-                    .08 +
-                    Math.random()*.12,
-                    6,
-                    6
-                ),
-                new THREE.MeshBasicMaterial({
-                    color:0x55ff99,
-                    transparent:true,
-                    opacity:
-                        .35 +
-                        Math.random()*.35
-                })
-            );
-
-        particle.position.set(
-            (Math.random()-.5)*1.5,
-            5.3 +
-            Math.random()*4,
-            (Math.random()-.5)*1.5
+        const p = new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .07+Math.random()*.12,
+                6,6
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0x45ff91,
+                transparent:true,
+                opacity:.3+Math.random()*.4
+            })
         );
 
-        particle.userData.speed =
-            .4 +
-            Math.random()*.8;
-
-        particleGroup.add(
-            particle
+        p.position.set(
+            (Math.random()-.5)*1.7,
+            5.3+Math.random()*4,
+            (Math.random()-.5)*1.7
         );
+
+        p.userData.speed =
+            .5+Math.random()*.8;
+
+        particles.add(p);
     }
 
-    group.add(
-        particleGroup
-    );
+    group.add(particles);
 
 
     group.position.copy(
@@ -1460,14 +1006,11 @@ function createGasFacility(
         type:"gasFacility",
 
         hp:500,
-
         maxHp:500,
 
         gas:2500,
 
-        particleGroup:
-            particleGroup,
-
+        particles:particles,
         core:core
 
     };
@@ -1482,196 +1025,158 @@ function createGasFacility(
 
 
 // ============================================================
-// 건설 미리보기
+// 가스 건설 미리보기
 // ============================================================
 
 function createGasPreview(){
 
-    const group =
-        new THREE.Group();
+    const group = new THREE.Group();
 
 
-    const previewMaterial =
+    const mat =
         new THREE.MeshStandardMaterial({
-
             color:0x55ff88,
-
+            emissive:0x227744,
+            emissiveIntensity:.7,
             transparent:true,
-
-            opacity:.3,
-
-            emissive:0x22aa55,
-
-            emissiveIntensity:.6
-
+            opacity:.35
         });
 
 
-    const platform =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                3.2,
-                3.5,
-                .7,
-                24
-            ),
-            previewMaterial
-        );
+    const base = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            3.2,3.5,.7,24
+        ),
+        mat
+    );
 
-    platform.position.y =
-        .35;
+    base.position.y=.35;
 
-    group.add(platform);
+    group.add(base);
 
 
-    const ring =
-        new THREE.Mesh(
-            new THREE.TorusGeometry(
-                2.5,
-                .25,
-                10,
-                32
-            ),
-            previewMaterial
-        );
+    const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(
+            2.5,.25,10,32
+        ),
+        mat
+    );
 
     ring.rotation.x =
         Math.PI/2;
 
-    ring.position.y =
-        .85;
+    ring.position.y=.85;
 
     group.add(ring);
 
 
-    const tank =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.55,
-                1.85,
-                3.8,
-                20
-            ),
-            previewMaterial
-        );
+    const tank = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            1.55,1.85,3.8,20
+        ),
+        mat
+    );
 
-    tank.position.y =
-        2.7;
+    tank.position.y=2.7;
 
     group.add(tank);
 
 
-    const top =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.15,
-                1.15,
-                .45,
-                20
-            ),
-            previewMaterial
-        );
+    const top = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            1.15,1.15,.45,20
+        ),
+        mat
+    );
 
-    top.position.y =
-        4.75;
+    top.position.y=4.75;
 
     group.add(top);
 
 
-    const core =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                .85,
-                20,
-                20
-            ),
-            previewMaterial
-        );
+    const core = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            .85,20,20
+        ),
+        mat
+    );
 
-    core.position.y =
-        5.15;
+    core.position.y=5.2;
 
     group.add(core);
 
 
-    group.visible =
-        false;
+    group.visible=false;
 
     scene.add(group);
 
     return group;
 }
 
-
 buildPreview =
     createGasPreview();
 
 
 // ============================================================
-// 건설 미리보기 색상
+// 메시지
 // ============================================================
 
-function setPreviewColor(
-    color
-){
+function showMessage(text){
 
-    buildPreview.traverse(
-        object => {
+    const box =
+        document.getElementById(
+            "buildMessage"
+        );
 
-            if(
-                object.material
-            ){
+    box.innerHTML=text;
 
-                object.material.color
-                    .setHex(color);
+    box.style.display="block";
 
-                object.material.emissive
-                    .setHex(color);
-            }
-        }
+    clearTimeout(
+        box.hideTimer
     );
 
+    box.hideTimer =
+        setTimeout(
+            ()=>{
+                box.style.display="none";
+            },
+            1800
+        );
 }
 
 
 // ============================================================
-// 선택
+// 선택 해제
 // ============================================================
 
 function clearSelection(){
 
-    selectedUnits
-        .forEach(
-            unit => {
+    selectedUnits.forEach(
+        unit=>{
+            unit.userData.selected=false;
+        }
+    );
 
-                unit.userData.selected =
-                    false;
-            }
-        );
-
-    selectedUnits = [];
-
+    selectedUnits=[];
 }
 
+
+// ============================================================
+// 유닛 선택
+// ============================================================
 
 function selectUnit(unit){
 
     clearSelection();
 
-    unit.userData.selected =
-        true;
+    unit.userData.selected=true;
 
-    selectedUnits.push(
-        unit
-    );
+    selectedUnits.push(unit);
 
-    selectedObject =
-        unit;
+    selectedObject=unit;
 
-    showUnitPanel(
-        unit
-    );
-
+    showPanel(unit);
 }
 
 
@@ -1679,9 +1184,7 @@ function selectUnit(unit){
 // 상태창
 // ============================================================
 
-function showUnitPanel(
-    object
-){
+function showPanel(obj){
 
     const panel =
         document.getElementById(
@@ -1698,110 +1201,99 @@ function showUnitPanel(
             "panelContent"
         );
 
-
-    panel.style.display =
-        "block";
+    panel.style.display="block";
 
 
-    if(
-        object.userData.type ===
-        "scv"
-    ){
+    if(obj.userData.type==="scv"){
 
-        title.innerHTML =
-            "👷 SCV";
+        title.innerHTML="👷 SCV";
 
-        content.innerHTML = `
+        content.innerHTML=`
 
             <div class="stat">
                 체력:
-                ${object.userData.hp}
+                ${obj.userData.hp}
                 /
-                ${object.userData.maxHp}
+                ${obj.userData.maxHp}
             </div>
 
             <div class="stat">
                 상태:
-                ${object.userData.state}
+                ${obj.userData.state}
+            </div>
+
+            <div class="stat">
+                건설 가능한 건물
             </div>
 
             <button
                 class="actionButton"
                 onclick="startGasBuild()"
             >
-                🏗️ 가스 채취 시설 건설
+                🏗️ 가스 채취 시설
             </button>
-
         `;
-
     }
 
 
     else if(
-        object.userData.type ===
-        "commandCenter"
+        obj.userData.type==="commandCenter"
     ){
 
-        title.innerHTML =
-            "🏢 사령부";
+        title.innerHTML="🏢 사령부";
 
-        content.innerHTML = `
+        content.innerHTML=`
 
             <div class="stat">
                 체력:
-                ${object.userData.hp}
+                ${obj.userData.hp}
                 /
-                ${object.userData.maxHp}
-            </div>
-
-            <div class="stat">
-                SCV 생산
+                ${obj.userData.maxHp}
             </div>
 
             <button
                 class="actionButton"
                 onclick="produceSCV()"
-                id="scvProduceButton"
             >
                 👷 SCV 만들기
                 <br>
-                💎 50
-                / 10초
+                💎 50 미네랄 / ⏱️ 10초
             </button>
 
             <div class="stat">
                 생산 대기:
                 <span id="queueDisplay">
-                    ${scvProductionQueue}
+                    ${scvQueue}
                 </span>
                 / ${MAX_SCV_QUEUE}
             </div>
-
         `;
-
     }
 
 
     else if(
-        object.userData.type ===
-        "gasFacility"
+        obj.userData.type==="gasFacility"
     ){
 
-        title.innerHTML =
-            "🟢 가스 채취 시설";
+        title.innerHTML="🟢 가스 채취 시설";
 
-        content.innerHTML = `
+        content.innerHTML=`
 
             <div class="stat">
                 체력:
-                ${object.userData.hp}
+                ${obj.userData.hp}
                 /
-                ${object.userData.maxHp}
+                ${obj.userData.maxHp}
             </div>
 
             <div class="stat">
                 남은 가스:
-                ${object.userData.gas}
+                ${obj.userData.gas}
+            </div>
+
+            <div class="stat">
+                가스 채취량:
+                ${SCV_GAS_AMOUNT}
             </div>
 
         `;
@@ -1816,65 +1308,57 @@ function showUnitPanel(
 
 function produceSCV(){
 
-    if(
-        scvProductionQueue >=
-        MAX_SCV_QUEUE
-    ){
+    if(scvQueue>=MAX_SCV_QUEUE){
 
-        alert(
-            "SCV 생산 대기열이 가득 찼습니다."
+        showMessage(
+            "🔴 SCV 생산 대기열이 가득 찼습니다."
         );
 
         return;
     }
 
 
-    if(
-        minerals < SCV_COST
-    ){
+    if(minerals<SCV_COST){
 
-        alert(
-            "미네랄이 부족합니다."
+        showMessage(
+            "🔴 미네랄이 부족합니다."
         );
 
         return;
     }
 
 
-    minerals -=
-        SCV_COST;
+    minerals -= SCV_COST;
+
+    scvQueue++;
 
     updateResources();
-
-
-    scvProductionQueue++;
-
-
     updateQueue();
 
 
     setTimeout(
-        () => {
+        ()=>{
+
+            const angle =
+                Math.random()*Math.PI*2;
 
             createSCV(
-                6 +
-                Math.random()*3,
-
-                5 +
-                Math.random()*3
+                Math.cos(angle)*6,
+                Math.sin(angle)*5
             );
 
-            scvProductionQueue--;
-
-            updateQueue();
+            scvQueue--;
 
             updateResources();
+            updateQueue();
+
+            showMessage(
+                "👷 SCV 생산 완료!"
+            );
 
         },
-
         SCV_BUILD_TIME*1000
     );
-
 }
 
 
@@ -1885,31 +1369,38 @@ function updateQueue(){
             "queueDisplay"
         );
 
-    if(el)
-        el.innerHTML =
-            scvProductionQueue;
-
+    if(el){
+        el.innerHTML=scvQueue;
+    }
 }
 
 
 // ============================================================
-// 가스 건설 시작
+// 가스 건설 모드
 // ============================================================
 
 function startGasBuild(){
 
+    if(selectedUnits.length===0){
+
+        showMessage(
+            "SCV를 먼저 선택하세요."
+        );
+
+        return;
+    }
+
+
     const builder =
-        selectedUnits
-            .find(
-                u =>
-                u.userData.type ===
-                "scv"
-            );
+        selectedUnits.find(
+            u =>
+            u.userData.type==="scv"
+        );
 
 
     if(!builder){
 
-        alert(
+        showMessage(
             "SCV를 선택하세요."
         );
 
@@ -1917,43 +1408,54 @@ function startGasBuild(){
     }
 
 
-    buildMode = true;
+    buildMode=true;
 
-    currentBuildSCV =
-        builder;
+    currentBuilder=builder;
 
-    buildPreview.visible =
-        true;
-
+    buildPreview.visible=true;
 
     document.getElementById(
         "buildMessage"
-    ).style.display =
-        "block";
+    ).style.display="block";
 
     document.getElementById(
         "buildMessage"
-    ).innerHTML =
-        "🏗️ 가스 시설 위치를 선택하세요";
-
-
-    setPreviewColor(
-        0x55ff88
-    );
+    ).innerHTML=
+        "🏗️ 가스 채취 시설 설치 위치를 선택하세요<br>" +
+        "<small>가스 분출구 위에 놓으면 건설 가능합니다</small>";
 
 }
 
 
 // ============================================================
-// 건설 미리보기
+// 미리보기 색상
+// ============================================================
+
+function previewColor(hex){
+
+    buildPreview.traverse(
+        obj=>{
+
+            if(obj.material){
+
+                obj.material.color.setHex(hex);
+
+                obj.material.emissive.setHex(hex);
+
+            }
+
+        }
+    );
+}
+
+
+// ============================================================
+// 건설 위치 확인
 // ============================================================
 
 function updateBuildPreview(){
 
-    if(
-        !buildMode ||
-        !buildPreview
-    )
+    if(!buildMode)
         return;
 
 
@@ -1963,49 +1465,43 @@ function updateBuildPreview(){
     );
 
 
-    const hit =
+    const hits =
         raycaster.intersectObject(
             ground
         );
 
 
-    if(!hit.length)
+    if(!hits.length)
         return;
 
 
     const point =
-        hit[0].point;
+        hits[0].point;
 
 
-    let nearest =
-        null;
-
-    let distance =
-        Infinity;
+    let nearest=null;
+    let nearestDistance=Infinity;
 
 
     geysers.forEach(
-        geyser => {
+        geyser=>{
 
             const d =
                 Math.hypot(
-                    point.x -
+                    point.x-
                     geyser.position.x,
 
-                    point.z -
+                    point.z-
                     geyser.position.z
                 );
 
 
             if(
-                d <
-                distance
+                d<nearestDistance
             ){
 
-                distance = d;
-
-                nearest =
-                    geyser;
+                nearestDistance=d;
+                nearest=geyser;
             }
 
         }
@@ -2014,34 +1510,31 @@ function updateBuildPreview(){
 
     if(
         nearest &&
-        distance < 6 &&
+        nearestDistance<5 &&
         !nearest.userData.hasFacility
     ){
 
-        buildPreviewValid =
-            true;
+        buildPreviewValid=true;
 
         buildPreview.position.copy(
             nearest.position
         );
 
-        setPreviewColor(
+        previewColor(
             0x55ff88
         );
 
-
         document.getElementById(
             "buildMessage"
-        ).innerHTML =
+        ).innerHTML=
             "🟢 건설 가능<br>" +
-            "<small>클릭하여 건설</small>";
+            "<small>좌클릭하여 건설</small>";
 
     }
 
     else{
 
-        buildPreviewValid =
-            false;
+        buildPreviewValid=false;
 
         buildPreview.position.set(
             point.x,
@@ -2049,155 +1542,152 @@ function updateBuildPreview(){
             point.z
         );
 
-        setPreviewColor(
+        previewColor(
             0xff3333
         );
 
-
         document.getElementById(
             "buildMessage"
-        ).innerHTML =
+        ).innerHTML=
             "🔴 건설할 수 없음<br>" +
-            "<small>가스 지역에 설치하세요</small>";
+            "<small>가스가 있는 곳에 설치하세요</small>";
     }
 
 }
 
 
 // ============================================================
-// 건설
+// 가스 시설 건설
 // ============================================================
 
 function confirmGasBuild(){
 
     if(
         !buildMode ||
-        !currentBuildSCV
+        !currentBuilder
     )
         return;
 
 
     if(!buildPreviewValid){
 
-        document.getElementById(
-            "buildMessage"
-        ).innerHTML =
-            "🔴 건설할 수 없음";
+        showMessage(
+            "🔴 이 위치에는 건설할 수 없습니다."
+        );
 
         return;
     }
 
 
-    let targetGeyser =
-        null;
+    let target=null;
 
 
     geysers.forEach(
-        geyser => {
+        geyser=>{
 
             if(
                 geyser.position.distanceTo(
                     buildPreview.position
-                ) < .1
+                )<.1
             ){
 
-                targetGeyser =
-                    geyser;
+                target=geyser;
             }
 
         }
     );
 
 
-    if(!targetGeyser)
+    if(!target)
         return;
 
 
-    buildMode =
-        false;
+    buildMode=false;
 
-    buildPreview.visible =
-        false;
+    buildPreview.visible=false;
 
+    const builder=currentBuilder;
 
-    document.getElementById(
-        "buildMessage"
-    ).innerHTML =
-        "🏗️ 가스 시설 건설 중...";
+    currentBuilder=null;
 
 
-    const scv =
-        currentBuildSCV;
+    builder.userData.state=
+        "가스 시설 건설 중";
 
 
-    scv.userData.state =
-        "building";
+    builder.userData.target=
+        target;
 
-    scv.userData.buildTarget =
-        targetGeyser;
+
+    showMessage(
+        "🏗️ SCV가 가스 시설을 건설하러 갑니다."
+    );
 
 
     moveUnitTo(
-        scv,
-        targetGeyser.position,
-        () => {
+        builder,
+        target.position,
+        ()=>{
+
+            builder.userData.state=
+                "건설 중";
+
+
+            showMessage(
+                "🏗️ 가스 시설 건설 중... 15초"
+            );
+
 
             setTimeout(
-                () => {
+                ()=>{
 
                     if(
-                        targetGeyser.userData
-                            .hasFacility
+                        target.userData.hasFacility
                     )
                         return;
 
 
-                    targetGeyser.userData
-                        .hasFacility =
-                        true;
-
+                    target.userData.hasFacility=true;
 
                     createGasFacility(
-                        targetGeyser
+                        target
                     );
 
 
-                    scv.userData.state =
-                        "idle";
+                    builder.userData.state=
+                        "대기";
 
-                    scv.userData.buildTarget =
-                        null;
-
-                    currentBuildSCV =
-                        null;
+                    builder.userData.target=null;
 
 
-                    document.getElementById(
-                        "buildMessage"
-                    ).innerHTML =
-                        "🟢 가스 시설 건설 완료";
-
-
-                    setTimeout(
-                        () => {
-
-                            document.getElementById(
-                                "buildMessage"
-                            ).style.display =
-                                "none";
-
-                        },
-                        1500
+                    showMessage(
+                        "🟢 가스 채취 시설 건설 완료!"
                     );
-
 
                 },
-
                 GAS_BUILD_TIME*1000
             );
 
         }
     );
+}
+
+
+// ============================================================
+// 건설 취소
+// ============================================================
+
+function cancelBuild(){
+
+    buildMode=false;
+
+    buildPreview.visible=false;
+
+    currentBuilder=null;
+
+    document.getElementById(
+        "buildMessage"
+    ).style.display="none";
 
 }
 
@@ -2209,151 +1699,126 @@ function confirmGasBuild(){
 function moveUnitTo(
     unit,
     target,
-    callback
+    callback=null
 ){
 
     unit.userData.moveTarget =
         target.clone();
 
     unit.userData.moveCallback =
-        callback || null;
+        callback;
 
     unit.userData.state =
-        "moving";
-
+        "이동 중";
 }
 
 
-// ============================================================
-// SCV 자원 시스템
-// ============================================================
-
-function updateSCV(
-    scv,
+function updateUnitMovement(
+    unit,
     delta
 ){
 
-    const data =
-        scv.userData;
+    const data=unit.userData;
+
+    if(!data.moveTarget)
+        return;
 
 
-    if(
-        data.state ===
-        "mining"
-    ){
+    const direction =
+        new THREE.Vector3()
+        .subVectors(
+            data.moveTarget,
+            unit.position
+        );
+
+
+    const distance =
+        direction.length();
+
+
+    if(distance<.45){
+
+        unit.userData.moveTarget=null;
+
+        const callback =
+            unit.userData.moveCallback;
+
+        unit.userData.moveCallback=null;
+
+
+        if(callback)
+            callback();
 
         return;
     }
 
 
-    if(
-        data.state ===
-        "returning"
-    ){
-
-        return;
-    }
+    direction.normalize();
 
 
-    if(
-        data.moveTarget
-    ){
-
-        const target =
-            data.moveTarget;
-
-
-        const direction =
-            new THREE.Vector3()
-                .subVectors(
-                    target,
-                    scv.position
-                );
+    unit.position.add(
+        direction.multiplyScalar(
+            data.speed*delta
+        )
+    );
 
 
-        const distance =
-            direction.length();
-
-
-        if(
-            distance < .5
-        ){
-
-            scv.userData.moveTarget =
-                null;
-
-
-            const callback =
-                scv.userData.moveCallback;
-
-            scv.userData.moveCallback =
-                null;
-
-
-            if(callback)
-                callback();
-
-
-        }
-
-        else{
-
-            direction.normalize();
-
-            scv.position.add(
-                direction.multiplyScalar(
-                    data.speed *
-                    delta
-                )
-            );
-
-
-            scv.rotation.y =
-                Math.atan2(
-                    direction.x,
-                    direction.z
-                );
-        }
-
-    }
-
+    unit.rotation.y =
+        Math.atan2(
+            direction.x,
+            direction.z
+        );
 }
 
 
 // ============================================================
-// 미네랄 명령
+// 미네랄 채취
 // ============================================================
 
 function orderMineMineral(
     scv,
-    node
+    mineral
 ){
 
-    scv.userData.state =
-        "movingToMineral";
+    if(
+        !mineral ||
+        mineral.userData.amount<=0
+    ){
 
-    scv.userData.target =
-        node;
+        scv.userData.state="대기";
+
+        return;
+    }
+
+
+    scv.userData.target=minerals;
+
+    scv.userData.state=
+        "미네랄로 이동";
 
 
     moveUnitTo(
         scv,
-        node.position,
-        () => {
+        mineral.position,
+        ()=>{
 
-            scv.userData.state =
-                "mining";
+            scv.userData.state=
+                "미네랄 채취 중";
+
+
+            showMessage(
+                "⛏️ SCV가 미네랄을 채취합니다."
+            );
 
 
             setTimeout(
-                () => {
+                ()=>{
 
                     if(
-                        node.userData.amount <= 0
+                        mineral.userData.amount<=0
                     ){
 
-                        scv.userData.state =
-                            "idle";
+                        scv.userData.state="대기";
 
                         return;
                     }
@@ -2362,60 +1827,58 @@ function orderMineMineral(
                     const amount =
                         Math.min(
                             SCV_MINERAL_AMOUNT,
-                            node.userData.amount
+                            mineral.userData.amount
                         );
 
 
-                    node.userData.amount -=
+                    mineral.userData.amount -=
+                        amount;
+
+                    scv.userData.carryingMineral=
                         amount;
 
 
-                    scv.userData.carrying =
-                        amount;
-
-
-                    scv.userData.state =
-                        "returning";
+                    scv.userData.state=
+                        "사령부로 복귀";
 
 
                     moveUnitTo(
                         scv,
                         commandCenter.position,
-                        () => {
+                        ()=>{
 
                             minerals +=
-                                scv.userData.carrying;
+                                scv.userData
+                                .carryingMineral;
 
-                            scv.userData.carrying =
-                                0;
+
+                            scv.userData
+                                .carryingMineral=0;
 
 
                             updateResources();
 
 
-                            // 다시 채취
-
+                            // 다시 자동 채취
                             orderMineMineral(
                                 scv,
-                                node
+                                mineral
                             );
 
                         }
                     );
 
                 },
-
                 MINERAL_TIME*1000
             );
 
         }
     );
-
 }
 
 
 // ============================================================
-// 가스 명령
+// 가스 채취
 // ============================================================
 
 function orderMineGas(
@@ -2423,31 +1886,49 @@ function orderMineGas(
     facility
 ){
 
-    scv.userData.state =
-        "movingToGas";
+    if(
+        !facility ||
+        facility.userData.gas<=0
+    ){
 
-    scv.userData.target =
-        facility;
+        scv.userData.state="대기";
+
+        showMessage(
+            "🔴 가스가 부족합니다."
+        );
+
+        return;
+    }
+
+
+    scv.userData.target=facility;
+
+    scv.userData.state=
+        "가스 시설로 이동";
 
 
     moveUnitTo(
         scv,
         facility.position,
-        () => {
+        ()=>{
 
-            scv.userData.state =
-                "gasMining";
+            scv.userData.state=
+                "가스 채취 중";
+
+
+            showMessage(
+                "🟢 SCV가 가스를 채취합니다."
+            );
 
 
             setTimeout(
-                () => {
+                ()=>{
 
                     if(
-                        facility.userData.gas <= 0
+                        facility.userData.gas<=0
                     ){
 
-                        scv.userData.state =
-                            "idle";
+                        scv.userData.state="대기";
 
                         return;
                     }
@@ -2464,32 +1945,31 @@ function orderMineGas(
                         amount;
 
 
-                    scv.userData.carryingGas =
+                    scv.userData.carryingGas=
                         amount;
 
 
-                    scv.userData.state =
-                        "returningGas";
+                    scv.userData.state=
+                        "사령부로 복귀";
 
 
                     moveUnitTo(
                         scv,
                         commandCenter.position,
-                        () => {
+                        ()=>{
 
                             gas +=
                                 scv.userData
                                 .carryingGas;
 
 
-                            scv.userData
-                                .carryingGas =
-                                0;
+                            scv.userData.carryingGas=0;
 
 
                             updateResources();
 
 
+                            // 다시 자동 채취
                             orderMineGas(
                                 scv,
                                 facility
@@ -2499,18 +1979,16 @@ function orderMineGas(
                     );
 
                 },
-
-                MINERAL_TIME*1000
+                GAS_TIME*1000
             );
 
         }
     );
-
 }
 
 
 // ============================================================
-// 마우스
+// 마우스 / 레이캐스트
 // ============================================================
 
 const mouse =
@@ -2519,236 +1997,226 @@ const mouse =
 const raycaster =
     new THREE.Raycaster();
 
-let mouseDown =
-    false;
+let mouseDown=false;
 
-let dragStartX = 0;
+let dragging=false;
 
-let dragStartY = 0;
+let dragStartX=0;
+let dragStartY=0;
 
-let isDragging =
-    false;
-
-
-renderer.domElement
-    .addEventListener(
-        "mousemove",
-        e => {
-
-            mouse.x =
-                (e.clientX /
-                window.innerWidth)
-                * 2 - 1;
-
-            mouse.y =
-                -(e.clientY /
-                window.innerHeight)
-                * 2 + 1;
+let mouseX=0;
+let mouseY=0;
 
 
-            if(mouseDown){
+renderer.domElement.addEventListener(
+    "mousemove",
+    e=>{
 
-                const dx =
-                    e.clientX -
-                    dragStartX;
-
-                const dy =
-                    e.clientY -
-                    dragStartY;
+        mouseX=e.clientX;
+        mouseY=e.clientY;
 
 
-                if(
-                    Math.abs(dx) > 5 ||
-                    Math.abs(dy) > 5
-                ){
+        mouse.x =
+            (e.clientX /
+            window.innerWidth)*2-1;
 
-                    isDragging =
-                        true;
+        mouse.y =
+            -(e.clientY /
+            window.innerHeight)*2+1;
 
-                    updateSelectionBox(
-                        dragStartX,
-                        dragStartY,
-                        e.clientX,
-                        e.clientY
-                    );
-                }
+
+        if(mouseDown){
+
+            const dx =
+                e.clientX-dragStartX;
+
+            const dy =
+                e.clientY-dragStartY;
+
+
+            if(
+                Math.abs(dx)>5 ||
+                Math.abs(dy)>5
+            ){
+
+                dragging=true;
+
+                updateSelectionBox(
+                    dragStartX,
+                    dragStartY,
+                    e.clientX,
+                    e.clientY
+                );
             }
-
-
-            updateBuildPreview();
-
         }
-    );
+
+
+        updateBuildPreview();
+
+    }
+);
 
 
 // ============================================================
 // 좌클릭
 // ============================================================
 
-renderer.domElement
-    .addEventListener(
-        "mousedown",
-        e => {
+renderer.domElement.addEventListener(
+    "mousedown",
+    e=>{
 
-            if(e.button !== 0)
-                return;
-
-
-            mouseDown =
-                true;
-
-            isDragging =
-                false;
-
-            dragStartX =
-                e.clientX;
-
-            dragStartY =
-                e.clientY;
+        if(e.button!==0)
+            return;
 
 
-            if(buildMode){
+        mouseDown=true;
+
+        dragging=false;
+
+        dragStartX=e.clientX;
+        dragStartY=e.clientY;
+
+    }
+);
+
+
+renderer.domElement.addEventListener(
+    "mouseup",
+    e=>{
+
+        if(e.button!==0)
+            return;
+
+
+        mouseDown=false;
+
+
+        if(buildMode){
+
+            if(!dragging){
 
                 confirmGasBuild();
 
-                return;
             }
+
+            return;
+        }
+
+
+        if(dragging){
+
+            selectUnitsInBox(
+                dragStartX,
+                dragStartY,
+                e.clientX,
+                e.clientY
+            );
 
         }
-    );
 
+        else{
 
-renderer.domElement
-    .addEventListener(
-        "mouseup",
-        e => {
-
-            if(e.button !== 0)
-                return;
-
-
-            mouseDown =
-                false;
-
-
-            if(isDragging){
-
-                selectUnitsInBox(
-                    dragStartX,
-                    dragStartY,
-                    e.clientX,
-                    e.clientY
-                );
-
-            }
-
-            else{
-
-                clickSelect(
-                    e.clientX,
-                    e.clientY
-                );
-
-            }
-
-
-            hideSelectionBox();
-
-            isDragging =
-                false;
+            clickSelect(
+                e.clientX,
+                e.clientY
+            );
 
         }
-    );
+
+
+        hideSelectionBox();
+
+        dragging=false;
+
+    }
+);
 
 
 // ============================================================
 // 우클릭
 // ============================================================
 
-renderer.domElement
-    .addEventListener(
-        "contextmenu",
-        e => {
+renderer.domElement.addEventListener(
+    "contextmenu",
+    e=>{
 
-            e.preventDefault();
-
-
-            if(buildMode){
-
-                cancelBuild();
-
-                return;
-            }
+        e.preventDefault();
 
 
-            if(
-                selectedUnits.length === 0
-            )
-                return;
+        if(buildMode){
 
+            cancelBuild();
 
-            raycaster.setFromCamera(
-                mouse,
-                camera
-            );
-
-
-            const intersects =
-                raycaster.intersectObject(
-                    ground
-                );
-
-
-            if(!intersects.length)
-                return;
-
-
-            const point =
-                intersects[0].point;
-
-
-            selectedUnits.forEach(
-                unit => {
-
-                    if(
-                        unit.userData.type ===
-                        "scv"
-                    ){
-
-                        moveUnitTo(
-                            unit,
-                            point
-                        );
-
-                        unit.userData.target =
-                            null;
-                    }
-
-                }
-            );
-
+            return;
         }
-    );
+
+
+        if(selectedUnits.length===0)
+            return;
+
+
+        mouse.x =
+            (e.clientX /
+            window.innerWidth)*2-1;
+
+        mouse.y =
+            -(e.clientY /
+            window.innerHeight)*2+1;
+
+
+        raycaster.setFromCamera(
+            mouse,
+            camera
+        );
+
+
+        const hits =
+            raycaster.intersectObject(
+                ground
+            );
+
+
+        if(!hits.length)
+            return;
+
+
+        const point =
+            hits[0].point;
+
+
+        selectedUnits.forEach(
+            unit=>{
+
+                if(
+                    unit.userData.type==="scv"
+                ){
+
+                    unit.userData.target=null;
+
+                    moveUnitTo(
+                        unit,
+                        point
+                    );
+                }
+
+            }
+        );
+
+    }
+);
 
 
 // ============================================================
-// 클릭 선택
+// 클릭 처리
 // ============================================================
 
-function clickSelect(
-    x,
-    y
-){
+function clickSelect(x,y){
 
     mouse.x =
-        (x /
-        window.innerWidth)
-        * 2 - 1;
+        (x/window.innerWidth)*2-1;
 
     mouse.y =
-        -(y /
-        window.innerHeight)
-        * 2 + 1;
+        -(y/window.innerHeight)*2+1;
 
 
     raycaster.setFromCamera(
@@ -2757,27 +2225,27 @@ function clickSelect(
     );
 
 
-    const objects = [];
+    const objects=[];
 
 
     scvs.forEach(
-        scv =>
-            objects.push(scv)
+        x=>objects.push(x)
     );
 
     buildings.forEach(
-        b =>
-            objects.push(b)
+        x=>objects.push(x)
     );
 
     gasFacilities.forEach(
-        f =>
-            objects.push(f)
+        x=>objects.push(x)
     );
 
-    mineralsNodes.forEach(
-        m =>
-            objects.push(m)
+    mineralNodes.forEach(
+        x=>objects.push(x)
+    );
+
+    geysers.forEach(
+        x=>objects.push(x)
     );
 
 
@@ -2794,15 +2262,13 @@ function clickSelect(
 
         document.getElementById(
             "sidePanel"
-        ).style.display =
-            "none";
+        ).style.display="none";
 
         return;
     }
 
 
-    let obj =
-        hits[0].object;
+    let obj=hits[0].object;
 
 
     while(
@@ -2810,8 +2276,7 @@ function clickSelect(
         !obj.userData.type
     ){
 
-        obj =
-            obj.parent;
+        obj=obj.parent;
     }
 
 
@@ -2819,26 +2284,80 @@ function clickSelect(
         return;
 
 
+    // -------------------------------
+    // 미네랄
+    // -------------------------------
+
     if(
-        obj.userData.type ===
-        "mineral"
+        obj.userData.type==="mineral"
     ){
 
-        if(
-            selectedUnits.length
-        ){
+        if(selectedUnits.length>0){
 
             selectedUnits.forEach(
-                unit => {
+                unit=>{
 
                     if(
-                        unit.userData.type ===
-                        "scv"
+                        unit.userData.type==="scv"
                     ){
 
                         orderMineMineral(
                             unit,
                             obj
+                        );
+                    }
+
+                }
+            );
+
+            return;
+        }
+
+        return;
+    }
+
+
+    // -------------------------------
+    // 가스 분출구
+    // -------------------------------
+
+    if(
+        obj.userData.type==="geyser"
+    ){
+
+        if(
+            !obj.userData.hasFacility
+        ){
+
+            showMessage(
+                "🔴 가스 채취 시설을 먼저 건설하세요."
+            );
+
+            return;
+        }
+
+
+        const facility =
+            gasFacilities.find(
+                f =>
+                f.position.distanceTo(
+                    obj.position
+                )<1
+            );
+
+
+        if(facility){
+
+            selectedUnits.forEach(
+                unit=>{
+
+                    if(
+                        unit.userData.type==="scv"
+                    ){
+
+                        orderMineGas(
+                            unit,
+                            facility
                         );
                     }
 
@@ -2851,57 +2370,83 @@ function clickSelect(
     }
 
 
+    // -------------------------------
+    // 가스 시설
+    // -------------------------------
+
     if(
-        obj.userData.type ===
-        "geyser"
+        obj.userData.type==="gasFacility"
     ){
 
-        if(
-            selectedUnits.length
-        ){
+        if(selectedUnits.length>0){
 
-            selectedUnits.forEach(
-                unit => {
+            const hasSCV =
+                selectedUnits.some(
+                    u =>
+                    u.userData.type==="scv"
+                );
 
-                    if(
-                        unit.userData.type ===
-                        "scv"
-                    ){
+
+            if(hasSCV){
+
+                selectedUnits.forEach(
+                    unit=>{
 
                         if(
-                            obj.userData
-                                .hasFacility
+                            unit.userData.type==="scv"
                         ){
 
-                            const facility =
-                                gasFacilities.find(
-                                    f =>
-                                    f.position
-                                    .distanceTo(
-                                        obj.position
-                                    ) < .1
-                                );
+                            orderMineGas(
+                                unit,
+                                obj
+                            );
 
-                            if(facility)
-                                orderMineGas(
-                                    unit,
-                                    facility
-                                );
                         }
+
                     }
+                );
 
-                }
-            );
-
+                return;
+            }
         }
+
+
+        selectUnit(obj);
 
         return;
     }
 
 
-    selectUnit(
-        obj
-    );
+    // -------------------------------
+    // 사령부
+    // -------------------------------
+
+    if(
+        obj.userData.type==="commandCenter"
+    ){
+
+        clearSelection();
+
+        selectedObject=obj;
+
+        showPanel(obj);
+
+        return;
+    }
+
+
+    // -------------------------------
+    // SCV
+    // -------------------------------
+
+    if(
+        obj.userData.type==="scv"
+    ){
+
+        selectUnit(obj);
+
+        return;
+    }
 
 }
 
@@ -2911,10 +2456,7 @@ function clickSelect(
 // ============================================================
 
 function updateSelectionBox(
-    x1,
-    y1,
-    x2,
-    y2
+    x1,y1,x2,y2
 ){
 
     const box =
@@ -2922,36 +2464,19 @@ function updateSelectionBox(
             "selectionBox"
         );
 
+    box.style.display="block";
 
-    box.style.display =
-        "block";
+    box.style.left=
+        Math.min(x1,x2)+"px";
 
+    box.style.top=
+        Math.min(y1,y2)+"px";
 
-    const left =
-        Math.min(x1,x2);
+    box.style.width=
+        Math.abs(x2-x1)+"px";
 
-    const top =
-        Math.min(y1,y2);
-
-    const width =
-        Math.abs(x2-x1);
-
-    const height =
-        Math.abs(y2-y1);
-
-
-    box.style.left =
-        left+"px";
-
-    box.style.top =
-        top+"px";
-
-    box.style.width =
-        width+"px";
-
-    box.style.height =
-        height+"px";
-
+    box.style.height=
+        Math.abs(y2-y1)+"px";
 }
 
 
@@ -2959,37 +2484,26 @@ function hideSelectionBox(){
 
     document.getElementById(
         "selectionBox"
-    ).style.display =
-        "none";
-
+    ).style.display="none";
 }
 
 
 function selectUnitsInBox(
-    x1,
-    y1,
-    x2,
-    y2
+    x1,y1,x2,y2
 ){
 
     clearSelection();
 
 
-    const left =
-        Math.min(x1,x2);
+    const left=Math.min(x1,x2);
+    const right=Math.max(x1,x2);
 
-    const right =
-        Math.max(x1,x2);
-
-    const top =
-        Math.min(y1,y2);
-
-    const bottom =
-        Math.max(y1,y2);
+    const top=Math.min(y1,y2);
+    const bottom=Math.max(y1,y2);
 
 
     scvs.forEach(
-        scv => {
+        scv=>{
 
             const screen =
                 worldToScreen(
@@ -2998,46 +2512,37 @@ function selectUnitsInBox(
 
 
             if(
-                screen.x >= left &&
-                screen.x <= right &&
-                screen.y >= top &&
-                screen.y <= bottom
+                screen.x>=left &&
+                screen.x<=right &&
+                screen.y>=top &&
+                screen.y<=bottom
             ){
 
-                scv.userData.selected =
-                    true;
+                scv.userData.selected=true;
 
-                selectedUnits.push(
-                    scv
-                );
+                selectedUnits.push(scv);
+
             }
 
         }
     );
 
 
-    if(
-        selectedUnits.length
-    ){
+    if(selectedUnits.length>0){
 
-        showUnitPanel(
+        showPanel(
             selectedUnits[0]
         );
     }
-
 }
 
 
-function worldToScreen(
-    position
-){
+function worldToScreen(position){
 
     const vector =
         position.clone();
 
-    vector.project(
-        camera
-    );
+    vector.project(camera);
 
 
     return {
@@ -3051,100 +2556,62 @@ function worldToScreen(
             window.innerHeight
 
     };
-
-}
-
-
-// ============================================================
-// 건설 취소
-// ============================================================
-
-function cancelBuild(){
-
-    buildMode =
-        false;
-
-    currentBuildSCV =
-        null;
-
-    buildPreview.visible =
-        false;
-
-
-    const message =
-        document.getElementById(
-            "buildMessage"
-        );
-
-    message.style.display =
-        "none";
-
 }
 
 
 // ============================================================
 // 카메라
+// 위에서 아래로 보는 RTS 방식
 // ============================================================
 
-let cameraX = 0;
-let cameraZ = 0;
+let cameraX=0;
+let cameraZ=0;
 
-const cameraSpeed = .8;
+const CAMERA_EDGE=45;
+const CAMERA_SPEED=.55;
 
 
 function updateCamera(){
 
-    const edge = 35;
+    if(mouseX<CAMERA_EDGE)
+        cameraX-=CAMERA_SPEED;
 
     if(
-        mouseX <
-        edge
+        mouseX>
+        window.innerWidth-CAMERA_EDGE
     )
-        cameraX -=
-            cameraSpeed;
+        cameraX+=CAMERA_SPEED;
+
+    if(mouseY<CAMERA_EDGE)
+        cameraZ-=CAMERA_SPEED;
 
     if(
-        mouseX >
-        window.innerWidth-edge
+        mouseY>
+        window.innerHeight-CAMERA_EDGE
     )
-        cameraX +=
-            cameraSpeed;
-
-    if(
-        mouseY <
-        edge
-    )
-        cameraZ -=
-            cameraSpeed;
-
-    if(
-        mouseY >
-        window.innerHeight-edge
-    )
-        cameraZ +=
-            cameraSpeed;
+        cameraZ+=CAMERA_SPEED;
 
 
-    cameraX =
+    cameraX=
         THREE.MathUtils.clamp(
             cameraX,
-            -35,
-            35
+            -38,
+            38
         );
 
-    cameraZ =
+    cameraZ=
         THREE.MathUtils.clamp(
             cameraZ,
-            -35,
-            35
+            -38,
+            38
         );
 
 
-    camera.position.x =
-        cameraX;
-
-    camera.position.z =
-        cameraZ + 25;
+    camera.position.set(
+        cameraX,
+        42,
+        cameraZ+28
+    );
 
 
     camera.lookAt(
@@ -3152,26 +2619,7 @@ function updateCamera(){
         0,
         cameraZ
     );
-
 }
-
-
-let mouseX = 0;
-let mouseY = 0;
-
-
-window.addEventListener(
-    "mousemove",
-    e => {
-
-        mouseX =
-            e.clientX;
-
-        mouseY =
-            e.clientY;
-
-    }
-);
 
 
 // ============================================================
@@ -3184,38 +2632,33 @@ const miniCanvas =
     );
 
 const miniCtx =
-    miniCanvas.getContext(
-        "2d"
-    );
+    miniCanvas.getContext("2d");
 
 
 document
     .getElementById("miniMap")
     .addEventListener(
         "click",
-        e => {
+        e=>{
 
             const rect =
-                miniCanvas
-                .getBoundingClientRect();
+                miniCanvas.getBoundingClientRect();
 
 
             const x =
-                (e.clientX -
-                rect.left) /
+                (e.clientX-rect.left)/
                 rect.width;
 
             const y =
-                (e.clientY -
-                rect.top) /
+                (e.clientY-rect.top)/
                 rect.height;
 
 
             cameraX =
-                (x-.5)*70;
+                (x-.5)*78;
 
             cameraZ =
-                (y-.5)*70;
+                (y-.5)*78;
 
         }
     );
@@ -3223,33 +2666,27 @@ document
 
 function drawMiniMap(){
 
-    miniCtx.fillStyle =
-        "#14221a";
+    miniCtx.fillStyle="#15251a";
 
     miniCtx.fillRect(
-        0,
-        0,
-        230,
-        150
+        0,0,240,155
     );
 
 
     // 미네랄
-
-    mineralsNodes.forEach(
-        m => {
+    mineralNodes.forEach(
+        m=>{
 
             const x =
-                (m.position.x+45) /
-                90 * 230;
+                (m.position.x+45)/
+                90*240;
 
             const y =
-                (m.position.z+45) /
-                90 * 150;
+                (m.position.z+45)/
+                90*155;
 
 
-            miniCtx.fillStyle =
-                "#22aaff";
+            miniCtx.fillStyle="#29a9ff";
 
             miniCtx.fillRect(
                 x-2,
@@ -3263,30 +2700,24 @@ function drawMiniMap(){
 
 
     // 가스
-
     geysers.forEach(
-        g => {
+        g=>{
 
             const x =
-                (g.position.x+45) /
-                90 * 230;
+                (g.position.x+45)/
+                90*240;
 
             const y =
-                (g.position.z+45) /
-                90 * 150;
+                (g.position.z+45)/
+                90*155;
 
 
-            miniCtx.fillStyle =
-                "#30ff75";
+            miniCtx.fillStyle="#32ff77";
 
             miniCtx.beginPath();
 
             miniCtx.arc(
-                x,
-                y,
-                5,
-                0,
-                Math.PI*2
+                x,y,5,0,Math.PI*2
             );
 
             miniCtx.fill();
@@ -3295,44 +2726,66 @@ function drawMiniMap(){
     );
 
 
-    // 사령부
+    // 가스 시설
+    gasFacilities.forEach(
+        f=>{
 
+            const x =
+                (f.position.x+45)/
+                90*240;
+
+            const y =
+                (f.position.z+45)/
+                90*155;
+
+
+            miniCtx.fillStyle="#00ff91";
+
+            miniCtx.fillRect(
+                x-4,
+                y-4,
+                8,
+                8
+            );
+
+        }
+    );
+
+
+    // 사령부
     const cx =
-        (commandCenter.position.x+45) /
-        90 * 230;
+        (commandCenter.position.x+45)/
+        90*240;
 
     const cy =
-        (commandCenter.position.z+45) /
-        90 * 150;
+        (commandCenter.position.z+45)/
+        90*155;
 
 
-    miniCtx.fillStyle =
-        "#eeeeee";
+    miniCtx.fillStyle="#eeeeee";
 
     miniCtx.fillRect(
-        cx-5,
-        cy-5,
-        10,
-        10
+        cx-6,
+        cy-6,
+        12,
+        12
     );
 
 
     // SCV
-
     scvs.forEach(
-        s => {
+        s=>{
 
             const x =
-                (s.position.x+45) /
-                90 * 230;
+                (s.position.x+45)/
+                90*240;
 
             const y =
-                (s.position.z+45) /
-                90 * 150;
+                (s.position.z+45)/
+                90*155;
 
 
-            miniCtx.fillStyle =
-                "#ffd23f";
+            miniCtx.fillStyle="#e7bd42";
 
             miniCtx.fillRect(
                 x-2,
@@ -3345,121 +2798,160 @@ function drawMiniMap(){
     );
 
 
-    // 현재 카메라
-
+    // 카메라 위치
     const vx =
-        (cameraX+45) /
-        90 * 230;
+        (cameraX+45)/
+        90*240;
 
     const vy =
-        (cameraZ+45) /
-        90 * 150;
+        (cameraZ+45)/
+        90*155;
 
 
-    miniCtx.strokeStyle =
-        "#ffffff";
+    miniCtx.strokeStyle="#ffffff";
 
     miniCtx.strokeRect(
-        vx-15,
-        vy-10,
-        30,
-        20
+        vx-18,
+        vy-12,
+        36,
+        24
     );
 
 }
 
 
 // ============================================================
-// 자원 UI
+// 리소스
 // ============================================================
 
 function updateResources(){
 
     document.getElementById(
         "minerals"
-    ).innerHTML =
-        minerals;
+    ).innerHTML=minerals;
 
     document.getElementById(
         "gas"
-    ).innerHTML =
-        gas;
+    ).innerHTML=gas;
 
     document.getElementById(
         "scvCount"
-    ).innerHTML =
-        scvs.length;
-
+    ).innerHTML=scvs.length;
 }
 
 
 // ============================================================
-// 가스 파티클 애니메이션
+// 가스 파티클
 // ============================================================
 
-function animateGas(
-    delta
-){
+function animateGas(delta){
 
     gasFacilities.forEach(
-        facility => {
+        facility=>{
 
             const particles =
                 facility.userData
-                    .particleGroup
-                    .children;
+                .particles
+                .children;
 
 
             particles.forEach(
-                particle => {
+                p=>{
 
-                    particle.position.y +=
-                        particle.userData.speed *
+                    p.position.y +=
+                        p.userData.speed*
                         delta;
 
 
-                    particle.position.x +=
-                        Math.sin(
-                            performance.now()*.002
-                        )*.001;
-
-
                     if(
-                        particle.position.y >
-                        9.5
+                        p.position.y>9.5
                     ){
 
-                        particle.position.y =
-                            5.2;
+                        p.position.y=5.3;
 
-                        particle.position.x =
-                            (Math.random()-.5)*1.5;
+                        p.position.x=
+                            (Math.random()-.5)*1.7;
 
-                        particle.position.z =
-                            (Math.random()-.5)*1.5;
+                        p.position.z=
+                            (Math.random()-.5)*1.7;
+
                     }
 
                 }
             );
 
 
+            const core =
+                facility.userData.core;
+
+
+            core.scale.setScalar(
+                1+
+                Math.sin(
+                    performance.now()*.004
+                )*.08
+            );
+
+        }
+    );
+}
+
+
+// ============================================================
+// 선택된 유닛 표시
+// ============================================================
+
+function updateSelectionVisual(){
+
+    scvs.forEach(
+        scv=>{
+
+            let ring =
+                scv.getObjectByName(
+                    "selectionRing"
+                );
+
+
             if(
-                facility.userData.core
+                scv.userData.selected
             ){
 
-                facility.userData.core
-                    .scale.setScalar(
-                        1 +
-                        Math.sin(
-                            performance.now()*.004
-                        )*.08
+                if(!ring){
+
+                    ring = new THREE.Mesh(
+                        new THREE.RingGeometry(
+                            1.1,
+                            1.3,
+                            24
+                        ),
+                        new THREE.MeshBasicMaterial({
+                            color:0x66bbff,
+                            side:THREE.DoubleSide
+                        })
                     );
+
+                    ring.name=
+                        "selectionRing";
+
+                    ring.rotation.x=
+                        -Math.PI/2;
+
+                    ring.position.y=.05;
+
+                    scv.add(ring);
+                }
+
+            }
+
+            else{
+
+                if(ring)
+                    scv.remove(ring);
 
             }
 
         }
     );
-
 }
 
 
@@ -3468,23 +2960,18 @@ function animateGas(
 // ============================================================
 
 document
-    .getElementById(
-        "startButton"
-    )
+    .getElementById("startButton")
     .addEventListener(
         "click",
-        () => {
+        ()=>{
 
-            gameStarted =
-                true;
+            gameStarted=true;
 
             document
                 .getElementById(
                     "raceScreen"
                 )
-                .style.display =
-                    "none";
-
+                .style.display="none";
 
             updateResources();
 
@@ -3510,14 +2997,15 @@ function animate(){
     const now =
         performance.now();
 
+
     const delta =
         Math.min(
             (now-lastTime)/1000,
             .05
         );
 
-    lastTime =
-        now;
+
+    lastTime=now;
 
 
     if(gameStarted){
@@ -3526,21 +3014,20 @@ function animate(){
 
 
         scvs.forEach(
-            scv =>
-                updateSCV(
+            scv=>{
+                updateUnitMovement(
                     scv,
                     delta
-                )
+                );
+            }
         );
 
 
-        animateGas(
-            delta
-        );
-
+        animateGas(delta);
 
         updateBuildPreview();
 
+        updateSelectionVisual();
 
         drawMiniMap();
 
@@ -3551,7 +3038,6 @@ function animate(){
         scene,
         camera
     );
-
 }
 
 
@@ -3559,15 +3045,15 @@ animate();
 
 
 // ============================================================
-// 리사이즈
+// 창 크기 변경
 // ============================================================
 
 window.addEventListener(
     "resize",
-    () => {
+    ()=>{
 
-        camera.aspect =
-            window.innerWidth /
+        camera.aspect=
+            window.innerWidth/
             window.innerHeight;
 
         camera.updateProjectionMatrix();
@@ -3587,7 +3073,7 @@ window.addEventListener(
 """
 
 components.html(
-    html,
+    GAME,
     height=900,
     scrolling=False
 )
